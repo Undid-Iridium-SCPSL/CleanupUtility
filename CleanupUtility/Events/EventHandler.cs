@@ -1,14 +1,15 @@
-﻿using Exiled.API.Features.Items;
+﻿using Exiled.API.Features;
 using Exiled.Events.EventArgs;
 using MEC;
+using static SharedLogicOrchestrator.DebugFilters;
 
 namespace CleanupUtility.Events
 {
-	internal class EventHandler
+	public class EventHandler
 	{
 		public static CoroutineHandle CleanupCoroutine;
 
-		private static PickupChecker pickupChecker;
+		public static PickupChecker pickupChecker;
 
 		internal static void RoundStart()
 		{
@@ -20,6 +21,7 @@ namespace CleanupUtility.Events
 				}
 			}
 
+			Log.Debug($"Round started, starting coroutine", CleanupUtility.Instance.Config.DebugFilters[DebugFilter.Fine]);
 			pickupChecker = new PickupChecker();
 
 			CleanupCoroutine = Timing.RunCoroutine(pickupChecker.CheckItems());
@@ -35,15 +37,22 @@ namespace CleanupUtility.Events
 					Timing.KillCoroutines(CleanupCoroutine);
 				}
 			}
-
+			Log.Debug($"Round Ending, End coroutine", CleanupUtility.Instance.Config.DebugFilters[DebugFilter.Fine]);
 			pickupChecker.releaseCoroutine();
 			pickupChecker = null;
 		}
 
-		internal static void DroppedEvent(DroppingItemEventArgs obj)
+		internal static void DroppedEvent(DroppingItemEventArgs droppedItem)
 		{
-
-			pickupChecker.itemTrackingQueue.Enqueue(Pickup.Get(obj.Item.Base.PickupDropModel));
+			//if (droppedItem.Item != null)
+			//{
+			//	Timing.CallDelayed(5, () =>
+			//	{
+			//		Pickup currItem = Pickup.Get(droppedItem.Item.Base.PickupDropModel);
+			//		Log.Debug($"Dropping Item even called, What was item {droppedItem.Item.Type} and what was pickup {currItem.Type}", CleanupUtility.Instance.Config.DebugFilters[DebugFilter.Fine]);
+			//		pickupChecker.itemTrackingQueue.Enqueue(currItem);
+			//	});
+			//}
 		}
 
 	}

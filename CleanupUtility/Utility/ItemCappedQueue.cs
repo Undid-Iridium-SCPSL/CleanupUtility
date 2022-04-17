@@ -7,6 +7,8 @@ namespace CleanupUtility.Utility
 	{
 		private readonly int m_Capacity;
 		private Queue<Tuple<T, DateTime>> internalQueue;
+		internal int Count => internalQueue.Count;
+
 		public ItemCappedQueue(int capacity)
 		{
 			m_Capacity = capacity;

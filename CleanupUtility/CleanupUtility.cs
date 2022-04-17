@@ -1,4 +1,5 @@
 ﻿using Exiled.API.Features;
+using HarmonyLib;
 using System;
 using PlayerEvents = Exiled.Events.Handlers.Player;
 using ServerEvents = Exiled.Events.Handlers.Server;
@@ -9,7 +10,11 @@ namespace CleanupUtility
 	public class CleanupUtility : Plugin<Config>
 	{
 
+		public override string Name => "CleanupUtility";
+
+		private Harmony harmony;
 		private string harmonyId = "com.Undid-Iridium.CleanupUtility";
+
 		public static Config earlyConfig;
 		public override Version Version => new Version(1, 0, 0);
 		public override Version RequiredExiledVersion => new Version(5, 1, 0, 0);
@@ -17,7 +22,7 @@ namespace CleanupUtility
 		public static CleanupUtility Instance;
 
 		public override string Author => "Undid-Iridium";
-		public override string Name => "Advanced Subclassing Redux";
+
 
 
 		/// <summary>
@@ -26,8 +31,14 @@ namespace CleanupUtility
 		public override void OnEnabled()
 		{
 			RegisterEvents();
-
+			RegisterHarmony();
 			base.OnEnabled();
+		}
+
+		private void RegisterHarmony()
+		{
+			harmony = new Harmony(harmonyId + DateTime.Now.Ticks.ToString());
+			harmony.PatchAll();
 		}
 
 
@@ -37,8 +48,14 @@ namespace CleanupUtility
 		public override void OnDisabled()
 		{
 			UnRegisterEvents();
-
+			UnRegisterHarmony();
 			base.OnDisabled();
+		}
+
+		private void UnRegisterHarmony()
+		{
+			harmony.UnpatchAll(harmony.Id);
+			harmony = null;
 		}
 
 		/// <summary>
@@ -48,6 +65,7 @@ namespace CleanupUtility
 		{
 			// Register the event handler class. And add the event,
 			// to the EXILED_Events event listener so we get the event.
+			Instance = this;
 			earlyConfig = Config;
 			ServerEvents.RoundStarted += Events.EventHandler.RoundStart;
 			ServerEvents.RoundEnded += Events.EventHandler.RoundEnd;
@@ -67,7 +85,7 @@ namespace CleanupUtility
 			ServerEvents.RoundStarted -= Events.EventHandler.RoundStart;
 			ServerEvents.RoundEnded -= Events.EventHandler.RoundEnd;
 			PlayerEvents.DroppingItem -= Events.EventHandler.DroppedEvent;
-
+			Instance = null;
 			Log.Info("SpawnControl has been unloaded");
 		}
 	}

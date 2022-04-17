@@ -31,6 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>..\..\..\..\AppData\Roaming\EXILED\Plugins\dependencies\0Harmony.dll</HintPath>
+    </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\SCP Secret Laboratory Dedicated Server\SCPSL_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
@@ -60,6 +63,8 @@
     <Compile Include="Config.cs" />
     <Compile Include="Events\EventHandler.cs" />
     <Compile Include="Events\PickupChecker.cs" />
+    <Compile Include="Patches\ServerDropAmmoPatch.cs" />
+    <Compile Include="Patches\ServerPickupPatch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility\ItemCappedQueue.cs" />
     <Compile Include="Utility\ItemTracking.cs" />
@@ -71,4 +76,10 @@
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>if EXIST "C:\Users\tuxwo\AppData\Roaming\EXILED\Plugins\" (
+	  copy /Y  "$(TargetPath)" "C:\Users\tuxwo\AppData\Roaming\EXILED\Plugins\$(TargetFileName)"
+  )
+	</PostBuildEvent>
+  </PropertyGroup>
 </Project>
