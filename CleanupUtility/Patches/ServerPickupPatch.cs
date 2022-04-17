@@ -12,6 +12,9 @@ using static HarmonyLib.AccessTools;
 namespace CleanupUtility.Patches
 {
 	/// <summary>
+	/// If you wonder why I did not patch ServerCreatePickup it is because information can be lost in that scenario.
+	/// These functions add a little more information, AND is done after a lot of networking has been issued. This means
+	/// there is a higher chance this will occur later than the minmium safe time required
 	/// Patches <see cref="InventoryExtensions.ServerDropItem"/> to help manage <see cref="Player.Items"/>.
 	/// </summary>
 	[HarmonyPatch(typeof(ItemBase), nameof(ItemBase.ServerDropItem))]
@@ -33,7 +36,7 @@ namespace CleanupUtility.Patches
 			//Log.Info($"What was index {index}");
 			LocalBuilder playerPickup = generator.DeclareLocal(typeof(Pickup));
 			Label skipLabel = generator.DefineLabel();
-			Label continueProcessing = generator.DefineLabel();
+
 			//newInstructions.InsertRange(index, new[]
 			//{
 			//	//new CodeInstruction(OpCodes.Ldarg_0).MoveLabelsFrom(newInstructions[index]),
