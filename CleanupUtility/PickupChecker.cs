@@ -44,7 +44,6 @@ namespace CleanupUtility
             {
                 if (plugin.Config.ItemFilter.TryGetValue(pickup.Type, out float time) && plugin.Config.ZoneFilter.TryGetValue(pickup.Type, out ZoneType acceptedZone))
                 {
-                    Log.Debug($"Where is the item currently {currentZone}", plugin.Config.Debug);
                     if (acceptedZone == currentZone)
                     {
                         itemTracker.Add(pickup, Time.time + time);

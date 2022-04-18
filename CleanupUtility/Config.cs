@@ -88,7 +88,7 @@ namespace CleanupUtility
         [Description("A collection of items that should be deleted paired with the time, in seconds, to wait before deleting them.")]
         public Dictionary<ItemType, ZoneType> ZoneFilter { get; set; } = new()
         {
-            { ItemType.KeycardJanitor, ZoneType.Surface },
+            { ItemType.KeycardJanitor, ZoneType.Unspecified },
             { ItemType.KeycardScientist, ZoneType.Unspecified },
             { ItemType.KeycardResearchCoordinator, ZoneType.Unspecified },
             { ItemType.KeycardZoneManager, ZoneType.Unspecified },
