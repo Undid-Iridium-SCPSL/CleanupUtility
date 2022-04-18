@@ -49,6 +49,7 @@ namespace CleanupUtility.Patches
 			Label continueProcessing = generator.DefineLabel();
 			newInstructions.InsertRange(index, new[]
 			{
+				//This could be reduced to a DUP but I rather have access to the variable code wise. v
 				new CodeInstruction(OpCodes.Stloc, ammoPickup.LocalIndex),
 				//Stores EStack value in LdLoc
 				new CodeInstruction(OpCodes.Ldloc, ammoPickup.LocalIndex),
@@ -82,10 +83,7 @@ namespace CleanupUtility.Patches
 				new CodeInstruction(OpCodes.Callvirt, Method(typeof(ItemCappedQueue<Pickup>), nameof(ItemCappedQueue<Pickup>.Enqueue), new[] { typeof(Pickup) })),
 				//Branch to escape to not print below logic
 				new CodeInstruction(OpCodes.Br, continueProcessing),
-				//new CodeInstruction(OpCodes.Ldloc, playerPickup.LocalIndex),
-				//// Stack [itemTrackingQueue, Pickup]
-				//new CodeInstruction(OpCodes.Callvirt, Method(typeof(ItemCappedQueue<Pickup>), nameof(ItemCappedQueue<Pickup>))),
-				//new CodeInstruction(OpCodes.Ldloc_1),
+
 
 				new CodeInstruction(OpCodes.Nop).WithLabels(skipLabel), //This is where we marked our print label to be 
 				new CodeInstruction(OpCodes.Ldstr, "ServerDropAmmo patch was not able to function because a variable was null or missing"), //Our string we need added to the EStack
@@ -94,7 +92,7 @@ namespace CleanupUtility.Patches
 				new CodeInstruction(OpCodes.Nop).WithLabels(continueProcessing),
 
 
-
+				//Need to put back our variable we stole. 
 				new CodeInstruction(OpCodes.Ldloc, ammoPickup.LocalIndex),
 
 			});
@@ -105,11 +103,7 @@ namespace CleanupUtility.Patches
 			for (int z = 0; z < newInstructions.Count; z++)
 				yield return newInstructions[z];
 
-			foreach (CodeInstruction instr in newInstructions)
-			{
-				Log.Info($"Current op code: {instr.opcode} and index {count}");
-				count++;
-			}
+
 
 			ListPool<CodeInstruction>.Shared.Return(newInstructions);
 		}

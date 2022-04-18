@@ -54,19 +54,38 @@ namespace CleanupUtility.Events
 				}
 
 				bool stillChecking = true;
+				DateTime loopStartTime = DateTime.UtcNow;
+
 				while (stillChecking && itemTrackingQueue.Count != 0)
 				{
 					Tuple<Pickup, DateTime> item = (Tuple<Pickup, DateTime>)itemTrackingQueue.Peek();
-					Log.Debug($"Still itemTrackingQueue looping, what was item {item.Item1.Type}", CleanupUtility.Instance.Config.DebugFilters[DebugFilter.Finest]);
-					if ((DateTime.UtcNow - item.Item2).TotalSeconds > 30)
+
+					if (CleanupUtility.Instance.Config.ItemFilter.TryGetValue(item.Item1.Type, out TimeSpan timerLimit))
 					{
-						itemTrackingQueue.Deque();
-						toRemove.AddLast(item.Item1);
+						if ((DateTime.UtcNow - item.Item2).TotalSeconds > timerLimit.TotalSeconds)
+						{
+							itemTrackingQueue.Deque();
+							toRemove.AddLast(item.Item1);
+							loopStartTime = DateTime.UtcNow;
+						}
+						else if ((DateTime.UtcNow - loopStartTime).TotalSeconds > CleanupUtility.Instance.Config.spinoutTime.TotalSeconds)
+						{
+							Log.Debug($"Still itemTrackingQueue looping, what was item {item.Item1.Type}", CleanupUtility.Instance.Config.DebugFilters[DebugFilter.Finest]);
+							//Items are taking too long to wait for, going to let this thread wait for a notify before running this again.
+							break;
+						}
+						//Just in case items are not able to be cleaned up so that we don't get infinite running time
+
 					}
 					else
 					{
-						stillChecking = false;
+
+						//Item not allowed to be removed. Giving thread time to sleep
+						itemTrackingQueue.Deque();
+						Thread.Sleep(100);
+						loopStartTime = DateTime.UtcNow;
 					}
+
 				}
 
 				Log.Debug($"itemTrackingQueue sleeping", CleanupUtility.Instance.Config.DebugFilters[DebugFilter.Fine]);

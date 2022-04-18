@@ -68,9 +68,7 @@ namespace CleanupUtility
 			Instance = this;
 			earlyConfig = Config;
 			ServerEvents.RoundStarted += Events.EventHandler.RoundStart;
-			ServerEvents.RoundEnded += Events.EventHandler.RoundEnd;
-			PlayerEvents.DroppingItem += Events.EventHandler.DroppedEvent;
-
+			ServerEvents.RestartingRound += Events.EventHandler.RestartingRound;
 
 			Log.Info("SpawnControl has been loaded");
 
@@ -83,8 +81,8 @@ namespace CleanupUtility
 		{
 
 			ServerEvents.RoundStarted -= Events.EventHandler.RoundStart;
-			ServerEvents.RoundEnded -= Events.EventHandler.RoundEnd;
-			PlayerEvents.DroppingItem -= Events.EventHandler.DroppedEvent;
+			ServerEvents.RestartingRound -= Events.EventHandler.RestartingRound;
+
 			Instance = null;
 			Log.Info("SpawnControl has been unloaded");
 		}
