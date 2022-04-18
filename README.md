@@ -26,6 +26,7 @@ Current plugin version: V1.0.0
 ## REQUIREMENTS
 * Exiled: V5.1.3
 * SCP:SL Server: V12.0.0
+* SharedLogicOrchestrator https://github.com/Undid-Iridium/SharedLogicOrchestrator (I do not like copy pasting the same configuration logic/enums/etc.)
 
 
 Example configuration
