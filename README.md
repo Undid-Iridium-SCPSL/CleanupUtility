@@ -1,3 +1,15 @@
+
+
+![CleanupUtility ISSUES](https://img.shields.io/github/issues/Undid-Iridium/CleanupUtility)
+![CleanupUtility FORKS](https://img.shields.io/github/forks/Undid-Iridium/CleanupUtility)
+![CleanupUtility LICENSE](https://img.shields.io/github/license/Undid-Iridium/CleanupUtility)
+
+
+![CleanupUtility LATEST](https://img.shields.io/github/v/release/Undid-Iridium/CleanupUtility?include_prereleases&style=flat-square)
+![CleanupUtility LINES](https://img.shields.io/tokei/lines/github/Undid-Iridium/CleanupUtility)
+![CleanupUtility DOWNLOADS](https://img.shields.io/github/downloads/Undid-Iridium/CleanupUtility/total?style=flat-square)
+
+
 # CleanupUtility
 
 Ability to control what items get cleaned up, and when.
@@ -40,3 +52,4 @@ cleanup_utility:
 ![NVIDIA_Share_5ZWKPjTGmo](https://user-images.githubusercontent.com/24619207/163738279-76834f94-42ee-4bc6-845a-6eca3a60d577.png)
 ![NVIDIA_Share_2TTTAws7Dt](https://user-images.githubusercontent.com/24619207/163738278-5dc8afe0-9dbe-4e02-92ca-c9056e57c369.png)
 
+This also requires https://github.com/Undid-Iridium/SharedLogicOrchestrator as I refuse to reuse logic and I believe Exiled/NW needs a better logging level management. 
