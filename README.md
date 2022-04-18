@@ -26,7 +26,7 @@ This solution Hijacks the methods that instantiate the ServerDropping of items, 
 
 # Installation
 
-**[EXILED](https://github.com/galaxy119/EXILED) must be installed for this to work.**
+**[EXILED](https://github.com/Exiled-Team/EXILED) must be installed for this to work.**
 
 Current plugin version: V1.0.0
 
