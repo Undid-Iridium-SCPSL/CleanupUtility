@@ -7,11 +7,15 @@
 
 namespace CleanupUtility
 {
-    using System.Collections.Generic;
-    using System.Linq;
+    using Exiled.API.Enums;
     using Exiled.API.Features;
     using Exiled.API.Features.Items;
+    using Exiled.Events.EventArgs;
+    using InventorySystem;
     using MEC;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using UnityEngine;
 
     /// <summary>
@@ -33,14 +37,40 @@ namespace CleanupUtility
         /// Adds an item to the tracking queue.
         /// </summary>
         /// <param name="pickup">The item to add.</param>
-        public void Add(Pickup pickup)
+        /// <param name="currentZone"> Current player zone for player hub. </param>
+        public void Add(Pickup pickup, ZoneType currentZone)
         {
-            if (plugin.Config.ItemFilter.TryGetValue(pickup.Type, out float time))
+            try
             {
-                itemTracker.Add(pickup, Time.time + time);
-                Log.Debug($"Added a {pickup.Type} ({pickup.Serial}) to the tracker to be deleted in {time} seconds.", plugin.Config.Debug);
+                if (plugin.Config.ItemFilter.TryGetValue(pickup.Type, out float time) && plugin.Config.ZoneFilter.TryGetValue(pickup.Type, out ZoneType acceptedZone))
+                {
+                    Log.Debug($"Where is the item currently {currentZone}", plugin.Config.Debug);
+                    if (acceptedZone == currentZone)
+                    {
+                        itemTracker.Add(pickup, Time.time + time);
+                        Log.Debug($"Added a {pickup.Type} ({pickup.Serial}) to the tracker to be deleted in {time} seconds.", plugin.Config.Debug);
+
+                    }
+                    else if (acceptedZone == ZoneType.Unspecified)
+                    {
+                        itemTracker.Add(pickup, Time.time + time);
+                        Log.Debug($"Added a {pickup.Type} ({pickup.Serial}) to the tracker to be deleted in {time} seconds with Unspecified marked as acceptable.", plugin.Config.Debug);
+                    }
+                    else
+                    {
+                        Log.Debug($"Could not add item {pickup.Type} because zones were not equal current {currentZone} vs accepted {acceptedZone}", plugin.Config.Debug);
+                    }
+
+                }
             }
+            catch (Exception ex)
+            {
+                Log.Debug($"Pickup.add failed because of {ex}", plugin.Config.Debug);
+            }
+
         }
+
+
 
         /// <inheritdoc cref="Exiled.Events.Handlers.Server.OnRoundStarted"/>
         public void OnRoundStarted()

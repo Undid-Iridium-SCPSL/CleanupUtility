@@ -11,7 +11,7 @@ namespace CleanupUtility
     using Exiled.API.Features;
     using HarmonyLib;
     using ServerEvents = Exiled.Events.Handlers.Server;
-
+    using PlayerEvents = Exiled.Events.Handlers.Player;
     /// <summary>
     /// The main plugin class.
     /// </summary>
@@ -61,6 +61,7 @@ namespace CleanupUtility
         {
             ServerEvents.RoundStarted -= PickupChecker.OnRoundStarted;
             ServerEvents.RestartingRound -= PickupChecker.OnRestartingRound;
+
             PickupChecker = null;
 
             harmony.UnpatchAll(harmony.Id);

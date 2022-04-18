@@ -9,6 +9,7 @@ namespace CleanupUtility
 {
     using System.Collections.Generic;
     using System.ComponentModel;
+    using Exiled.API.Enums;
     using Exiled.API.Interfaces;
 
     /// <inheritdoc />
@@ -79,6 +80,58 @@ namespace CleanupUtility
             { ItemType.SCP330, 600f },
             { ItemType.SCP2176, 600f },
             { ItemType.SCP1853, 600f },
+        };
+
+        /// <summary>
+        /// Gets or sets a collection of items that should be deleted paired with the time, in seconds, to wait before deleting them.
+        /// </summary>
+        [Description("A collection of items that should be deleted paired with the time, in seconds, to wait before deleting them.")]
+        public Dictionary<ItemType, ZoneType> ZoneFilter { get; set; } = new()
+        {
+            { ItemType.KeycardJanitor, ZoneType.Surface },
+            { ItemType.KeycardScientist, ZoneType.Unspecified },
+            { ItemType.KeycardResearchCoordinator, ZoneType.Unspecified },
+            { ItemType.KeycardZoneManager, ZoneType.Unspecified },
+            { ItemType.KeycardGuard, ZoneType.Unspecified },
+            { ItemType.KeycardNTFOfficer, ZoneType.Unspecified },
+            { ItemType.KeycardContainmentEngineer, ZoneType.Unspecified },
+            { ItemType.KeycardNTFLieutenant, ZoneType.Unspecified },
+            { ItemType.KeycardNTFCommander, ZoneType.Unspecified },
+            { ItemType.KeycardFacilityManager, ZoneType.Unspecified },
+            { ItemType.KeycardChaosInsurgency, ZoneType.Unspecified },
+            { ItemType.KeycardO5, ZoneType.Unspecified },
+            { ItemType.Radio, ZoneType.Unspecified },
+            { ItemType.GunCOM15, ZoneType.Unspecified },
+            { ItemType.Medkit, ZoneType.Unspecified },
+            { ItemType.Flashlight, ZoneType.Unspecified },
+            { ItemType.SCP500, ZoneType.Unspecified },
+            { ItemType.SCP207, ZoneType.Unspecified },
+            { ItemType.Ammo12gauge, ZoneType.Unspecified },
+            { ItemType.GunE11SR, ZoneType.Unspecified },
+            { ItemType.GunCrossvec, ZoneType.Unspecified },
+            { ItemType.Ammo556x45, ZoneType.Unspecified },
+            { ItemType.GunFSP9, ZoneType.Unspecified },
+            { ItemType.GunLogicer, ZoneType.Unspecified },
+            { ItemType.GrenadeHE, ZoneType.Unspecified },
+            { ItemType.GrenadeFlash, ZoneType.Unspecified },
+            { ItemType.Ammo44cal, ZoneType.Unspecified },
+            { ItemType.Ammo762x39, ZoneType.Unspecified },
+            { ItemType.Ammo9x19, ZoneType.Unspecified },
+            { ItemType.GunCOM18, ZoneType.Unspecified },
+            { ItemType.SCP018, ZoneType.Unspecified },
+            { ItemType.SCP268, ZoneType.Unspecified },
+            { ItemType.Adrenaline, ZoneType.Unspecified },
+            { ItemType.Painkillers, ZoneType.Unspecified },
+            { ItemType.Coin, ZoneType.Unspecified },
+            { ItemType.ArmorLight, ZoneType.Unspecified },
+            { ItemType.ArmorCombat, ZoneType.Unspecified },
+            { ItemType.ArmorHeavy, ZoneType.Unspecified },
+            { ItemType.GunRevolver, ZoneType.Unspecified },
+            { ItemType.GunAK, ZoneType.Unspecified },
+            { ItemType.GunShotgun, ZoneType.Unspecified },
+            { ItemType.SCP330, ZoneType.Unspecified },
+            { ItemType.SCP2176, ZoneType.Unspecified },
+            { ItemType.SCP1853, ZoneType.Unspecified },
         };
     }
 }
