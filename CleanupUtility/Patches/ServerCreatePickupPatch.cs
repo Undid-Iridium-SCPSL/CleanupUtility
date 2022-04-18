@@ -38,15 +38,19 @@ namespace CleanupUtility.Patches
 
             newInstructions.InsertRange(index, new[]
             {
-                //Load ItemBase to EStack
+                // Load ItemBase to EStack
                 new CodeInstruction(OpCodes.Ldarg_1),
-                //Load EStack to callvirt and get owner back on Estack
+
+                // Load EStack to callvirt and get owner back on Estack
                 new CodeInstruction(OpCodes.Callvirt, PropertyGetter(typeof(ItemBase), nameof(ItemBase.Owner))),
-                //Using Owner call Player.Get static method with it (Reference hub) and get a Player back
+
+                // Using Owner call Player.Get static method with it (Reference hub) and get a Player back
                 new CodeInstruction(OpCodes.Call, Method(typeof(Player), nameof(Player.Get), new[] { typeof(ReferenceHub)})),
-                //Then get the player Zone
+
+                // Then get the player Zone
                 new CodeInstruction(OpCodes.Callvirt, PropertyGetter(typeof(Player), nameof(Player.Zone))),
-                //Then save the player zone to a local variable (This is all done early because spawn deletes information and made it default to surface)
+
+                // Then save the player zone to a local variable (This is all done early because spawn deletes information and made it default to surface)
                 new CodeInstruction(OpCodes.Stloc, itemZone.LocalIndex),
 
             });
@@ -54,9 +58,6 @@ namespace CleanupUtility.Patches
             index = newInstructions.FindLastIndex(instruction => instruction.opcode == OpCodes.Ldloc_0);
             newInstructions.InsertRange(index, new[]
             {
-
-                  
-
                 // Calls static instance
                 new CodeInstruction(OpCodes.Call, PropertyGetter(typeof(Plugin), nameof(Plugin.Instance))),
 
@@ -95,7 +96,6 @@ namespace CleanupUtility.Patches
                 Log.Info($"Current op code: {instr.opcode} and index {count}");
                 count++;
             }
-
 
             ListPool<CodeInstruction>.Shared.Return(newInstructions);
         }

@@ -52,7 +52,7 @@ namespace CleanupUtility
             PickupChecker = new PickupChecker(this);
             ServerEvents.RoundStarted += PickupChecker.OnRoundStarted;
             ServerEvents.RestartingRound += PickupChecker.OnRestartingRound;
-            PlayerEvents.Spawning += PickupChecker.OnSpawn;
+
             base.OnEnabled();
         }
 
@@ -61,7 +61,7 @@ namespace CleanupUtility
         {
             ServerEvents.RoundStarted -= PickupChecker.OnRoundStarted;
             ServerEvents.RestartingRound -= PickupChecker.OnRestartingRound;
-            PlayerEvents.Spawning -= PickupChecker.OnSpawn;
+
             PickupChecker = null;
 
             harmony.UnpatchAll(harmony.Id);
