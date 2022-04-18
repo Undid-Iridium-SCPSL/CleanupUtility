@@ -79,7 +79,7 @@ namespace CleanupUtility
         {
             while (Round.IsStarted)
             {
-                yield return Timing.WaitForSeconds(0.2f);
+                yield return Timing.WaitForSeconds(plugin.Config.CheckInterval);
                 if (itemTracker.IsEmpty())
                     continue;
 
