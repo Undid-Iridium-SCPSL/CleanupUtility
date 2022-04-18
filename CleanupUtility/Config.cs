@@ -83,9 +83,9 @@ namespace CleanupUtility
         };
 
         /// <summary>
-        /// Gets or sets a collection of items that should be deleted paired with the time, in seconds, to wait before deleting them.
+        /// Gets or sets a collection of ItemTypes that should be deleted by Zone.
         /// </summary>
-        [Description("A collection of items that should be deleted paired with the time, in seconds, to wait before deleting them.")]
+        [Description("Filter on what zone item type can be cleared from.")]
         public Dictionary<ItemType, ZoneType> ZoneFilter { get; set; } = new()
         {
             { ItemType.KeycardJanitor, ZoneType.Unspecified },
