@@ -26,6 +26,7 @@ namespace CleanupUtility
         /// <summary>
         /// Gets or sets the time, in seconds, between each check of the list of items to delete.
         /// </summary>
+        [Description("The time, in seconds, between each check of the list of items to delete.")]
         public float CheckInterval { get; set; } = 0.2f;
 
         /// <summary>
