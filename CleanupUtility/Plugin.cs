@@ -46,7 +46,7 @@ namespace CleanupUtility
         {
             Instance = this;
 
-            harmony = new Harmony("com.Undid-Iridium.CleanupUtility" + DateTime.UtcNow.Ticks);
+            harmony = new Harmony($"com.Undid-Iridium.CleanupUtility.{DateTime.UtcNow.Ticks}");
             harmony.PatchAll();
 
             PickupChecker = new PickupChecker(this);
