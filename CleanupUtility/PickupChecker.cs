@@ -65,19 +65,12 @@ namespace CleanupUtility
             }
             catch (Exception ex)
             {
-                Log.Debug($"Woahhhh {ex}", plugin.Config.Debug);
+                Log.Debug($"Pickup.add failed because of {ex}", plugin.Config.Debug);
             }
 
         }
 
-        internal void OnSpawn(SpawningEventArgs ev)
-        {
-            Log.Info($"On spawn {ev.Player.Zone}");
-            Timing.CallDelayed(10f, () =>
-            {
-                Log.Debug($"Player zone {ev.Player.Zone}", plugin.Config.Debug);
-            });
-        }
+
 
         /// <inheritdoc cref="Exiled.Events.Handlers.Server.OnRoundStarted"/>
         public void OnRoundStarted()
