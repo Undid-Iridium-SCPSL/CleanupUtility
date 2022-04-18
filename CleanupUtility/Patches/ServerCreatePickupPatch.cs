@@ -35,6 +35,14 @@ namespace CleanupUtility.Patches
                 // Since the instance is now on the stack, we will call ProperttyGetter to get to PickupChecker object from our Instance object
                 new CodeInstruction(OpCodes.Callvirt, PropertyGetter(typeof(Plugin), nameof(Plugin.PickupChecker))),
 
+                /*
+                 *      .maxstack 4
+                        .locals init (
+                            [0] class InventorySystem.Items.Pickups.ItemPickupBase,
+                            [1] valuetype InventorySystem.Items.Pickups.PickupSyncInfo
+                        )
+                */
+
                 // Load the variable unto Eval Stack [ItemPickupBase]
                 new CodeInstruction(OpCodes.Ldloc_0),
 
