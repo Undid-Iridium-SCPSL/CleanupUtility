@@ -47,7 +47,9 @@ namespace CleanupUtility
         {
             itemTracker.Clear();
             if (cleanupCoroutine.IsRunning)
+            {
                 Timing.KillCoroutines(cleanupCoroutine);
+            }
 
             cleanupCoroutine = Timing.RunCoroutine(CheckItems());
         }
@@ -56,7 +58,9 @@ namespace CleanupUtility
         public void OnRestartingRound()
         {
             if (cleanupCoroutine.IsRunning)
+            {
                 Timing.KillCoroutines(cleanupCoroutine);
+            }
         }
 
         private void CheckItem(Pickup pickup, float expirationTime)
@@ -68,7 +72,9 @@ namespace CleanupUtility
             }
 
             if (pickup.InUse || Time.time < expirationTime)
+            {
                 return;
+            }
 
             Log.Debug($"Deleting an item of type {pickup.Type} ({pickup.Serial}).", plugin.Config.Debug);
             pickup.Destroy();
@@ -81,7 +87,9 @@ namespace CleanupUtility
             {
                 yield return Timing.WaitForSeconds(plugin.Config.CheckInterval);
                 if (itemTracker.IsEmpty())
+                {
                     continue;
+                }
 
                 for (int i = 0; i < itemTracker.Count; i++)
                 {
