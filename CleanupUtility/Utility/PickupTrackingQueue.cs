@@ -3,19 +3,19 @@ using System.Collections.Generic;
 
 namespace CleanupUtility.Utility
 {
-	public class ItemCappedQueue<T>
+	public class PickupTrackingQueue<T>
 	{
 		private readonly int m_Capacity;
 		private Queue<Tuple<T, DateTime>> internalQueue;
 		internal int Count => internalQueue.Count;
 
-		public ItemCappedQueue(int capacity)
+		public PickupTrackingQueue(int capacity)
 		{
 			m_Capacity = capacity;
 			internalQueue = new Queue<Tuple<T, DateTime>>(capacity);
 		}
 
-		public ItemCappedQueue()
+		public PickupTrackingQueue()
 		{
 			internalQueue = new Queue<Tuple<T, DateTime>>();
 		}

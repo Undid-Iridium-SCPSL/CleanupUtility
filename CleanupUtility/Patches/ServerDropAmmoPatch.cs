@@ -80,7 +80,7 @@ namespace CleanupUtility.Patches
 				//Load local variable to EStack
 				new CodeInstruction(OpCodes.Ldloc, playerPickup.LocalIndex),
 				//Call Enque using last variable on EStack, and last function result from Estack [Ldfld tracking queue, Ldloc pickup object)
-				new CodeInstruction(OpCodes.Callvirt, Method(typeof(ItemCappedQueue<Pickup>), nameof(ItemCappedQueue<Pickup>.Enqueue), new[] { typeof(Pickup) })),
+				new CodeInstruction(OpCodes.Callvirt, Method(typeof(PickupTrackingQueue<Pickup>), nameof(PickupTrackingQueue<Pickup>.Enqueue), new[] { typeof(Pickup) })),
 				//Branch to escape to not print below logic
 				new CodeInstruction(OpCodes.Br, continueProcessing),
 

@@ -20,18 +20,18 @@ namespace CleanupUtility.Events
 
 		private object externalThreadLock = new object();
 
-		public ItemCappedQueue<Pickup> itemTrackingQueue;
+		public PickupTrackingQueue<Pickup> itemTrackingQueue;
 
 		public PickupChecker()
 		{
-			itemTrackingQueue = new ItemCappedQueue<Pickup>();
+			itemTrackingQueue = new PickupTrackingQueue<Pickup>();
 			releaseChecker = false;
 			releaseQueue = new Queue<bool>();
 			backgroundCleanerThread = new Thread(() => ThreadedCheck(releaseQueue, itemTrackingQueue, externalThreadLock));
 			backgroundCleanerThread.Start();
 		}
 
-		public void ThreadedCheck(Queue<bool> releaseQueue, ItemCappedQueue<Pickup> itemTrackingQueue, object externalThreadLock)
+		public void ThreadedCheck(Queue<bool> releaseQueue, PickupTrackingQueue<Pickup> itemTrackingQueue, object externalThreadLock)
 		{
 
 
@@ -125,7 +125,15 @@ namespace CleanupUtility.Events
 						{
 							try
 							{
-								toRemove.First.Value.Destroy();
+								Pickup itemToRemove = toRemove.First.Value;
+								if (itemToRemove != null)
+								{
+									if (!itemToRemove.InUse)
+									{
+										itemToRemove.Destroy();
+									}
+
+								}
 								toRemove.RemoveFirst();
 							}
 							catch (Exception ex)
