@@ -38,41 +38,17 @@ namespace CleanupUtility.Patches
 
             newInstructions.InsertRange(index, new[]
             {
-                // new CodeInstruction(OpCodes.Ldarg_0),
-                // new CodeInstruction(OpCodes.Callvirt, PropertyGetter(typeof(Inventory), nameof(Inventory.gameObject))),
-                // new CodeInstruction(OpCodes.Ldstr, "Woahhhh before get hub"),
-                // new CodeInstruction(OpCodes.Call, Method(typeof(Log), nameof(Log.Info), new[] { typeof(string) })),
-
-                // new CodeInstruction(OpCodes.Call, Method(typeof(ReferenceHub), nameof(ReferenceHub.GetHub), new[] { typeof (UnityEngine.GameObject) })),
-
-                // new CodeInstruction(OpCodes.Ldstr, "Woahhhh after get hub"),
-                // new CodeInstruction(OpCodes.Call, Method(typeof(Log), nameof(Log.Info), new[] { typeof(string) })),
-                // new CodeInstruction(OpCodes.Call, Method(typeof(Player), nameof(Player.Get), new[] { typeof(UnityEngine.GameObject)})),
-                // new CodeInstruction(OpCodes.Callvirt, PropertyGetter(typeof(Player), nameof(Player.Zone))),
-                // new CodeInstruction(OpCodes.Stloc, itemZone.LocalIndex),
-
-                // new CodeInstruction(OpCodes.Ldstr, "Woahhhh before get Ldarg_1"),
-                // new CodeInstruction(OpCodes.Call, Method(typeof(Log), nameof(Log.Info), new[] { typeof(string) })),
+                //Load ItemBase to EStack
                 new CodeInstruction(OpCodes.Ldarg_1),
+                //Load EStack to callvirt and get owner back on Estack
                 new CodeInstruction(OpCodes.Callvirt, PropertyGetter(typeof(ItemBase), nameof(ItemBase.Owner))),
-
-                // new CodeInstruction(OpCodes.Ldstr, "Woahhhh before get hub"),
-                // new CodeInstruction(OpCodes.Call, Method(typeof(Log), nameof(Log.Info), new[] { typeof(string) })),
+                //Using Owner call Player.Get static method with it (Reference hub) and get a Player back
                 new CodeInstruction(OpCodes.Call, Method(typeof(Player), nameof(Player.Get), new[] { typeof(ReferenceHub)})),
+                //Then get the player Zone
                 new CodeInstruction(OpCodes.Callvirt, PropertyGetter(typeof(Player), nameof(Player.Zone))),
+                //Then save the player zone to a local variable (This is all done early because spawn deletes information and made it default to surface)
                 new CodeInstruction(OpCodes.Stloc, itemZone.LocalIndex),
 
-                // new CodeInstruction(OpCodes.Ldstr, "Woahhhh "),
-                // new CodeInstruction(OpCodes.Call, Method(typeof(Log), nameof(Log.Info), new[] { typeof(string) })),
-
-                // new CodeInstruction(OpCodes.Ldstr, "Woahhhh {0}"),
-                // new CodeInstruction(OpCodes.Ldloc, itemZone.LocalIndex),
-                // new CodeInstruction(OpCodes.Box, itemZone.LocalType),
-                // new CodeInstruction(OpCodes.Call, Method(typeof(string), nameof(string.Format), new[] { typeof(string), typeof(object) })),
-                // new CodeInstruction(OpCodes.Call, Method(typeof(Log), nameof(Log.Info), new[] { typeof(string) })),
-
-                // new CodeInstruction(OpCodes.Ldstr, "Woahhhh "),
-                // new CodeInstruction(OpCodes.Call, Method(typeof(Log), nameof(Log.Info), new[] { typeof(string) })),
             });
 
             index = newInstructions.FindLastIndex(instruction => instruction.opcode == OpCodes.Ldloc_0);
