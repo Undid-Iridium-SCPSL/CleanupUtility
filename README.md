@@ -1,3 +1,15 @@
+
+
+![CleanupUtility ISSUES](https://img.shields.io/github/issues/Undid-Iridium/CleanupUtility)
+![CleanupUtility FORKS](https://img.shields.io/github/forks/Undid-Iridium/CleanupUtility)
+![CleanupUtility LICENSE](https://img.shields.io/github/license/Undid-Iridium/CleanupUtility)
+
+
+![CleanupUtility LATEST](https://img.shields.io/github/v/release/Undid-Iridium/CleanupUtility?include_prereleases&style=flat-square)
+![CleanupUtility LINES](https://img.shields.io/tokei/lines/github/Undid-Iridium/CleanupUtility)
+![CleanupUtility DOWNLOADS](https://img.shields.io/github/downloads/Undid-Iridium/CleanupUtility/total?style=flat-square)
+
+
 # CleanupUtility
 
 Ability to control what items get cleaned up, and when.
