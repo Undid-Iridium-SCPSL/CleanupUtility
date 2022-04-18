@@ -14,7 +14,7 @@
 
 Ability to control what items get cleaned up, and when.
 
-This solution Hijacks the methods that instantiate the ServerDropping of items, and the ServerPickup adding of ammo. 
+This solution Hijacks the methods that instantiate the ServerDropping of items, and the ServerPickup adding of ammo. I went down this route to allow the ability to lock in individual patch's per type, and force the ItemPickupBase to be grabbed after it was done being touched by NW's instantiation code (or at least right after). If you have any suggestions please don't hesitate to open an issue. Thanks
 
 
 # Installation
