@@ -15,8 +15,10 @@ namespace CleanupUtility.Patches
     using InventorySystem;
     using InventorySystem.Items;
     using NorthwoodLib.Pools;
-    using System;
+
+#pragma warning disable SA1208 // System using directives should be placed before other using directives
     using System.Collections.Generic;
+#pragma warning restore SA1208 // System using directives should be placed before other using directives
     using System.Reflection.Emit;
     using static HarmonyLib.AccessTools;
 
@@ -30,9 +32,7 @@ namespace CleanupUtility.Patches
         {
             List<CodeInstruction> newInstructions = ListPool<CodeInstruction>.Shared.Rent(instructions);
 
-
             LocalBuilder itemZone = generator.DeclareLocal(typeof(ZoneType));
-            //Label skipLabel = generator.DefineLabel();
 
             int index = newInstructions.FindIndex(instruction => instruction.opcode == OpCodes.Ldarg_1) + 1;
 
@@ -45,14 +45,13 @@ namespace CleanupUtility.Patches
                 new CodeInstruction(OpCodes.Callvirt, PropertyGetter(typeof(ItemBase), nameof(ItemBase.Owner))),
 
                 // Using Owner call Player.Get static method with it (Reference hub) and get a Player back
-                new CodeInstruction(OpCodes.Call, Method(typeof(Player), nameof(Player.Get), new[] { typeof(ReferenceHub)})),
+                new CodeInstruction(OpCodes.Call, Method(typeof(Player), nameof(Player.Get), new[] { typeof(ReferenceHub) })),
 
                 // Then get the player Zone
                 new CodeInstruction(OpCodes.Callvirt, PropertyGetter(typeof(Player), nameof(Player.Zone))),
 
                 // Then save the player zone to a local variable (This is all done early because spawn deletes information and made it default to surface)
                 new CodeInstruction(OpCodes.Stloc, itemZone.LocalIndex),
-
             });
 
             index = newInstructions.FindLastIndex(instruction => instruction.opcode == OpCodes.Ldloc_0);
@@ -82,15 +81,13 @@ namespace CleanupUtility.Patches
                 new CodeInstruction(OpCodes.Ldloc, itemZone.LocalIndex),
 
                 // EStack variable used, [PickupChecker (Callvirt arg 0 (Instance)), Pickup (Arg 1 (Param))]
-                new CodeInstruction(OpCodes.Callvirt, Method(typeof(PickupChecker), nameof(PickupChecker.Add), new[] { typeof(Pickup), typeof(ZoneType)})),
+                new CodeInstruction(OpCodes.Callvirt, Method(typeof(PickupChecker), nameof(PickupChecker.Add), new[] { typeof(Pickup), typeof(ZoneType) })),
             });
 
             for (int z = 0; z < newInstructions.Count; z++)
             {
                 yield return newInstructions[z];
             }
-
-
 
             ListPool<CodeInstruction>.Shared.Return(newInstructions);
         }

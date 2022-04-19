@@ -7,15 +7,13 @@
 
 namespace CleanupUtility
 {
-    using Exiled.API.Enums;
-    using Exiled.API.Features;
-    using Exiled.API.Features.Items;
-    using Exiled.Events.EventArgs;
-    using InventorySystem;
-    using MEC;
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Exiled.API.Enums;
+    using Exiled.API.Features;
+    using Exiled.API.Features.Items;
+    using MEC;
     using UnityEngine;
 
     /// <summary>
@@ -48,7 +46,6 @@ namespace CleanupUtility
                     {
                         itemTracker.Add(pickup, Time.time + time);
                         Log.Debug($"Added a {pickup.Type} ({pickup.Serial}) to the tracker to be deleted in {time} seconds.", plugin.Config.Debug);
-
                     }
                     else if (acceptedZones.Contains(ZoneType.Unspecified))
                     {
@@ -59,17 +56,13 @@ namespace CleanupUtility
                     {
                         Log.Debug($"Could not add item {pickup.Type} because zones were not equal current {currentZone} vs accepted {string.Join(Environment.NewLine, acceptedZones)}", plugin.Config.Debug);
                     }
-
                 }
             }
             catch (Exception ex)
             {
                 Log.Debug($"Pickup.add failed because of {ex}", plugin.Config.Debug);
             }
-
         }
-
-
 
         /// <inheritdoc cref="Exiled.Events.Handlers.Server.OnRoundStarted"/>
         public void OnRoundStarted()
