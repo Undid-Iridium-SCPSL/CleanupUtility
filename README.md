@@ -185,6 +185,9 @@ cleanup_utility:
 ![NVIDIA_Share_YmibdG6PY2](https://user-images.githubusercontent.com/24619207/163738277-e2a80193-5ae2-497e-99fd-181468e7742f.png)
 ![NVIDIA_Share_5ZWKPjTGmo](https://user-images.githubusercontent.com/24619207/163738279-76834f94-42ee-4bc6-845a-6eca3a60d577.png)
 ![NVIDIA_Share_2TTTAws7Dt](https://user-images.githubusercontent.com/24619207/163738278-5dc8afe0-9dbe-4e02-92ca-c9056e57c369.png)
+
+(The gap in time is ridtp to surface and spawning the items in)
+
 ![image](https://user-images.githubusercontent.com/24619207/163898085-097de715-450f-47b9-adc1-ed5d019f789a.png)
 
 This also requires https://github.com/Undid-Iridium/SharedLogicOrchestrator as I refuse to reuse logic and I believe Exiled/NW needs a better logging level management. 
