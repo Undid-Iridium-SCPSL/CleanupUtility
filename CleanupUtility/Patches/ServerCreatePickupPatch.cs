@@ -36,6 +36,9 @@ namespace CleanupUtility.Patches
 
             int index = newInstructions.FindIndex(instruction => instruction.opcode == OpCodes.Ldarg_1) + 1;
 
+            Label skipLabel = generator.DefineLabel();
+            Label continueProcessing = generator.DefineLabel();
+
             newInstructions.InsertRange(index, new[]
             {
                 // Load ItemBase to EStack
@@ -43,6 +46,12 @@ namespace CleanupUtility.Patches
 
                 // Load EStack to callvirt and get owner back on Estack
                 new CodeInstruction(OpCodes.Callvirt, PropertyGetter(typeof(ItemBase), nameof(ItemBase.Owner))),
+
+                // Duplicate ItemBase.Owner (if null then two nulls)
+                new CodeInstruction(OpCodes.Dup),
+
+                // If previous owner is null, escape this, still have one null on stack if that is the case
+                new CodeInstruction(OpCodes.Brfalse_S, skipLabel),
 
                 // Using Owner call Player.Get static method with it (Reference hub) and get a Player back
                 new CodeInstruction(OpCodes.Call, Method(typeof(Player), nameof(Player.Get), new[] { typeof(ReferenceHub) })),
@@ -52,6 +61,24 @@ namespace CleanupUtility.Patches
 
                 // Then save the player zone to a local variable (This is all done early because spawn deletes information and made it default to surface)
                 new CodeInstruction(OpCodes.Stloc, itemZone.LocalIndex),
+
+                // Continue without calling broken escape route
+                new CodeInstruction(OpCodes.Br, continueProcessing),
+
+                // Default value setting ZoneType to unspecified if previous owner is null by escaping to this label
+                new CodeInstruction(OpCodes.Nop).WithLabels(skipLabel),
+
+                // Remove current null from stack
+                new CodeInstruction(OpCodes.Pop),
+
+                // Assign unspecified enum
+                new CodeInstruction(OpCodes.Ldc_I4_4),
+
+                // Save that enum to ZoneType
+                new CodeInstruction(OpCodes.Stloc, itemZone.LocalIndex),
+
+                // Escape path for normal processing
+                new CodeInstruction(OpCodes.Nop).WithLabels(continueProcessing),
             });
 
             index = newInstructions.FindLastIndex(instruction => instruction.opcode == OpCodes.Ldloc_0);
@@ -89,6 +116,12 @@ namespace CleanupUtility.Patches
                 yield return newInstructions[z];
             }
 
+            // int count = 0;
+            // foreach (CodeInstruction instr in newInstructions)
+            // {
+            //    Log.Info($"Current op code: {instr.opcode} and index {count}");
+            //    count++;
+            // }
             ListPool<CodeInstruction>.Shared.Return(newInstructions);
         }
     }
