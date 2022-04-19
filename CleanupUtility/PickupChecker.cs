@@ -57,7 +57,7 @@ namespace CleanupUtility
                     }
                     else
                     {
-                        Log.Debug($"Could not add item {pickup.Type} because zones were not equal current {currentZone} vs accepted {acceptedZones}", plugin.Config.Debug);
+                        Log.Debug($"Could not add item {pickup.Type} because zones were not equal current {currentZone} vs accepted {string.Join(Environment.NewLine, acceptedZones)}", plugin.Config.Debug);
                     }
 
                 }
