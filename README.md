@@ -21,7 +21,7 @@ This solution Hijacks the methods that instantiate the ServerDropping of items, 
 * Add hot swappable config settings for debug
 * Add Log.Batch, Log.BatchDebug
 * Add Probability of item to be cleaned up 
-* Add zone choices
+* ~~Add zone choices~~ Done V1.1.2
 * Add documentation in code. Also justification for queue is that I could use it for more than just an escape method (No longer true based on granular filtering, so swapping to dictionary system). Also justification for two transpilers was for after-NW touching (Not needed after some testing, reference object is delayed long enough it is a non-relevant factor. If I was cleaning items up immediately then maybe; however, behavior will remain the same in essence)
 
 # Installation
