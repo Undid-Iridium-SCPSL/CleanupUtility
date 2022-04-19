@@ -90,12 +90,7 @@ namespace CleanupUtility.Patches
                 yield return newInstructions[z];
             }
 
-            int count = 0;
-            foreach (CodeInstruction instr in newInstructions)
-            {
-                Log.Info($"Current op code: {instr.opcode} and index {count}");
-                count++;
-            }
+
 
             ListPool<CodeInstruction>.Shared.Return(newInstructions);
         }

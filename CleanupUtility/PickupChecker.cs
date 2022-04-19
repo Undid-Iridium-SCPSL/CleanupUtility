@@ -42,22 +42,22 @@ namespace CleanupUtility
         {
             try
             {
-                if (plugin.Config.ItemFilter.TryGetValue(pickup.Type, out float time) && plugin.Config.ZoneFilter.TryGetValue(pickup.Type, out ZoneType acceptedZone))
+                if (plugin.Config.ItemFilter.TryGetValue(pickup.Type, out float time) && plugin.Config.ZoneFilter.TryGetValue(pickup.Type, out HashSet<ZoneType> acceptedZones))
                 {
-                    if (acceptedZone == currentZone)
+                    if (acceptedZones.Contains(currentZone))
                     {
                         itemTracker.Add(pickup, Time.time + time);
                         Log.Debug($"Added a {pickup.Type} ({pickup.Serial}) to the tracker to be deleted in {time} seconds.", plugin.Config.Debug);
 
                     }
-                    else if (acceptedZone == ZoneType.Unspecified)
+                    else if (acceptedZones.Contains(ZoneType.Unspecified))
                     {
                         itemTracker.Add(pickup, Time.time + time);
                         Log.Debug($"Added a {pickup.Type} ({pickup.Serial}) to the tracker to be deleted in {time} seconds with Unspecified marked as acceptable.", plugin.Config.Debug);
                     }
                     else
                     {
-                        Log.Debug($"Could not add item {pickup.Type} because zones were not equal current {currentZone} vs accepted {acceptedZone}", plugin.Config.Debug);
+                        Log.Debug($"Could not add item {pickup.Type} because zones were not equal current {currentZone} vs accepted {string.Join(Environment.NewLine, acceptedZones)}", plugin.Config.Debug);
                     }
 
                 }
