@@ -38,7 +38,6 @@ namespace CleanupUtility
         /// <param name="currentZone"> Current player zone for player hub. </param>
         public void Add(Pickup pickup, ZoneType currentZone)
         {
-            Log.Info("Pickup checker called Add");
             try
             {
                 if (plugin.Config.ItemFilter.TryGetValue(pickup.Type, out float time) && plugin.Config.ZoneFilter.TryGetValue(pickup.Type, out HashSet<ZoneType> acceptedZones))

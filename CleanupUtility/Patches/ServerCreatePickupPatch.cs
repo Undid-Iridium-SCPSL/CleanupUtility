@@ -45,7 +45,9 @@ namespace CleanupUtility.Patches
                 new CodeInstruction(OpCodes.Ldarg_0),
 
                 // Load EStack to callvirt and get owner back on Estack
-                new CodeInstruction(OpCodes.Ldfld, Field(typeof(Inventory), nameof(Inventory._hub))),
+                new CodeInstruction(OpCodes.Callvirt, PropertyGetter(typeof(Inventory), nameof(Inventory.gameObject))),
+
+                new CodeInstruction(OpCodes.Call, Method(typeof(ReferenceHub), nameof(ReferenceHub.GetHub), new[] { typeof(UnityEngine.GameObject) })),
 
                 // Duplicate ItemBase.Owner (if null then two nulls)
                 new CodeInstruction(OpCodes.Dup),
