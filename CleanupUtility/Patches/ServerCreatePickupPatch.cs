@@ -42,10 +42,12 @@ namespace CleanupUtility.Patches
             newInstructions.InsertRange(index, new[]
             {
                 // Load ItemBase to EStack
-                new CodeInstruction(OpCodes.Ldarg_1),
+                new CodeInstruction(OpCodes.Ldarg_0),
 
                 // Load EStack to callvirt and get owner back on Estack
-                new CodeInstruction(OpCodes.Callvirt, PropertyGetter(typeof(ItemBase), nameof(ItemBase.Owner))),
+                new CodeInstruction(OpCodes.Callvirt, PropertyGetter(typeof(Inventory), nameof(Inventory.gameObject))),
+
+                new CodeInstruction(OpCodes.Call, Method(typeof(ReferenceHub), nameof(ReferenceHub.GetHub), new[] { typeof(UnityEngine.GameObject) })),
 
                 // Duplicate ItemBase.Owner (if null then two nulls)
                 new CodeInstruction(OpCodes.Dup),

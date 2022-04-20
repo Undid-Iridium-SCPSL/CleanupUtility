@@ -18,11 +18,9 @@ This solution Hijacks the methods that instantiate the ServerDropping of items, 
 
 *Update* I will probably modify how the code behaves. I had originally used an internal queue system but then I allowed filtering on items making that efficiency useless since I'll have to iterate all items based on config. Additionally, My reasoning for two transpilers that were after NW's instantiation seem extreme. Supposedly, or at least from raw testing it seems to be fine to just modify ServerCallPickup which I may do later but it shouldn't change the behavior. Furthermore, I want to add debug layer's and actually cleanup the way debug is handeled.
 
-* Add hot swappable config settings for debug
-* Add Log.Batch, Log.BatchDebug
-* Add Probability of item to be cleaned up 
+* Add Probability of item to be cleaned up (Feature, may not do unless desire for)
 * ~~Add zone choices~~ Done V1.1.2
-* Add documentation in code. Also justification for queue is that I could use it for more than just an escape method (No longer true based on granular filtering, so swapping to dictionary system). Also justification for two transpilers was for after-NW touching (Not needed after some testing, reference object is delayed long enough it is a non-relevant factor. If I was cleaning items up immediately then maybe; however, behavior will remain the same in essence)
+* ~~Add documentation in code. Also justification for queue is that I could use it for more than just an escape method (No longer true based on granular filtering, so swapping to dictionary system). Also justification for two transpilers was for after-NW touching (Not needed after some testing, reference object is delayed long enough it is a non-relevant factor. If I was cleaning items up immediately then maybe; however, behavior will remain the same in essence)~~ Done
 
 # Installation
 
@@ -33,7 +31,6 @@ Current plugin version: V1.0.0
 ## REQUIREMENTS
 * Exiled: V5.1.3
 * SCP:SL Server: V12.0.0
-* SharedLogicOrchestrator https://github.com/Undid-Iridium/SharedLogicOrchestrator (I do not like copy pasting the same configuration logic/enums/etc.)
 
 
 Example configuration
