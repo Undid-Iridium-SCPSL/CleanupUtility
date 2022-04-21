@@ -26,11 +26,11 @@ This solution Hijacks the methods that instantiate the ServerDropping of items, 
 
 **[EXILED](https://github.com/Exiled-Team/EXILED) must be installed for this to work.**
 
-Current plugin version: V1.0.0
+Current plugin version: V1.1.4
 
 ## REQUIREMENTS
 * Exiled: V5.1.3
-* SCP:SL Server: V12.0.0
+* SCP:SL Server: V11.2
 
 
 Example configuration
