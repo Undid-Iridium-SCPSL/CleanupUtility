@@ -7,9 +7,9 @@
 
 namespace CleanupUtility
 {
-    using System;
     using Exiled.API.Features;
     using HarmonyLib;
+    using System;
     using ServerEvents = Exiled.Events.Handlers.Server;
 
     /// <summary>

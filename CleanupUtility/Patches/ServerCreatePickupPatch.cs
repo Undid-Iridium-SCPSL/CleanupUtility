@@ -5,20 +5,17 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+#pragma warning disable SA1118
+
 namespace CleanupUtility.Patches
 {
     using Exiled.API.Enums;
     using Exiled.API.Features;
-#pragma warning disable SA1118
     using Exiled.API.Features.Items;
     using HarmonyLib;
     using InventorySystem;
-    using InventorySystem.Items;
     using NorthwoodLib.Pools;
-
-#pragma warning disable SA1208 // System using directives should be placed before other using directives
     using System.Collections.Generic;
-#pragma warning restore SA1208 // System using directives should be placed before other using directives
     using System.Reflection.Emit;
     using static HarmonyLib.AccessTools;
 
@@ -61,26 +58,17 @@ namespace CleanupUtility.Patches
                 // Then get the player Zone
                 new CodeInstruction(OpCodes.Callvirt, PropertyGetter(typeof(Player), nameof(Player.Zone))),
 
-                // Then save the player zone to a local variable (This is all done early because spawn deletes information and made it default to surface)
-                new CodeInstruction(OpCodes.Stloc, itemZone.LocalIndex),
-
                 // Continue without calling broken escape route
                 new CodeInstruction(OpCodes.Br, continueProcessing),
 
-                // Default value setting ZoneType to unspecified if previous owner is null by escaping to this label
-                new CodeInstruction(OpCodes.Nop).WithLabels(skipLabel),
-
-                // Remove current null from stack
-                new CodeInstruction(OpCodes.Pop),
+                // Remove current null from stack. Default value setting ZoneType to unspecified if previous owner is null by escaping to this label
+                new CodeInstruction(OpCodes.Pop).WithLabels(skipLabel),
 
                 // Assign unspecified enum
                 new CodeInstruction(OpCodes.Ldc_I4_4),
 
-                // Save that enum to ZoneType
-                new CodeInstruction(OpCodes.Stloc, itemZone.LocalIndex),
-
-                // Escape path for normal processing
-                new CodeInstruction(OpCodes.Nop).WithLabels(continueProcessing),
+                // Then save the player zone to a local variable (This is all done early because spawn deletes information and made it default to surface)
+                new CodeInstruction(OpCodes.Stloc, itemZone.LocalIndex).WithLabels(continueProcessing),
             });
 
             index = newInstructions.FindLastIndex(instruction => instruction.opcode == OpCodes.Ldloc_0);
@@ -118,12 +106,6 @@ namespace CleanupUtility.Patches
                 yield return newInstructions[z];
             }
 
-            // int count = 0;
-            // foreach (CodeInstruction instr in newInstructions)
-            // {
-            //    Log.Info($"Current op code: {instr.opcode} and index {count}");
-            //    count++;
-            // }
             ListPool<CodeInstruction>.Shared.Return(newInstructions);
         }
     }

@@ -7,13 +7,13 @@
 
 namespace CleanupUtility
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
     using Exiled.API.Enums;
     using Exiled.API.Features;
     using Exiled.API.Features.Items;
     using MEC;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using UnityEngine;
 
     /// <summary>
@@ -29,7 +29,10 @@ namespace CleanupUtility
         /// Initializes a new instance of the <see cref="PickupChecker"/> class.
         /// </summary>
         /// <param name="plugin">An instance of the <see cref="Plugin"/> class.</param>
-        public PickupChecker(Plugin plugin) => this.plugin = plugin;
+        public PickupChecker(Plugin plugin)
+        {
+            this.plugin = plugin;
+        }
 
         /// <summary>
         /// Adds an item to the tracking queue.

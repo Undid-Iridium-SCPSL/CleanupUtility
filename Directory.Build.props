@@ -2,7 +2,7 @@
 <Project>
     <!-- StyleCop Analyzers configuration -->
     <PropertyGroup>
-        <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)\CleanupUtility.ruleset</CodeAnalysisRuleSet>
+        <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)\MvpUtility.ruleset</CodeAnalysisRuleSet>
     </PropertyGroup>
 
     <ItemGroup>

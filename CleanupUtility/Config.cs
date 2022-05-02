@@ -7,10 +7,10 @@
 
 namespace CleanupUtility
 {
-    using System.Collections.Generic;
-    using System.ComponentModel;
     using Exiled.API.Enums;
     using Exiled.API.Interfaces;
+    using System.Collections.Generic;
+    using System.ComponentModel;
 
     /// <inheritdoc />
     public class Config : IConfig
