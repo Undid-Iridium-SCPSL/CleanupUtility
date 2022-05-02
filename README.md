@@ -14,9 +14,7 @@
 
 Ability to control what items get cleaned up, and when.
 
-This solution Hijacks the methods that instantiate the ServerDropping of items, and the ServerPickup adding of ammo. I went down this route to allow the ability to lock in individual patch's per type, and force the ItemPickupBase to be grabbed after it was done being touched by NW's instantiation code (or at least right after). If you have any suggestions please don't hesitate to open an issue. Thanks
-
-*Update* I will probably modify how the code behaves. I had originally used an internal queue system but then I allowed filtering on items making that efficiency useless since I'll have to iterate all items based on config. Additionally, My reasoning for two transpilers that were after NW's instantiation seem extreme. Supposedly, or at least from raw testing it seems to be fine to just modify ServerCallPickup which I may do later but it shouldn't change the behavior. Furthermore, I want to add debug layer's and actually cleanup the way debug is handeled.
+This solution Hijacks the methods that instantiate the ServerCreatePickup of items, and of ammo. I went down this route to allow the ability to lock in individual patch's per type, and force the ItemPickupBase to be grabbed after it was done being touched by NW's instantiation code (or at least right after). If you have any suggestions please don't hesitate to open an issue. This also includes the zone the pickup was created in, which allows you specify where items can be deleted from. Thanks
 
 * Add Probability of item to be cleaned up (Feature, may not do unless desire for)
 * ~~Add zone choices~~ Done V1.1.2
@@ -186,5 +184,3 @@ cleanup_utility:
 (The gap in time is ridtp to surface and spawning the items in)
 
 ![image](https://user-images.githubusercontent.com/24619207/163898085-097de715-450f-47b9-adc1-ed5d019f789a.png)
-
-This also requires https://github.com/Undid-Iridium/SharedLogicOrchestrator as I refuse to reuse logic and I believe Exiled/NW needs a better logging level management. 
