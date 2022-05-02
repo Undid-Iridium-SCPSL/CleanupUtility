@@ -59,7 +59,7 @@ namespace CleanupUtility.Patches
                 new CodeInstruction(OpCodes.Callvirt, PropertyGetter(typeof(Player), nameof(Player.Zone))),
 
                 // Continue without calling broken escape route
-                new CodeInstruction(OpCodes.Br, continueProcessing),
+                new CodeInstruction(OpCodes.Br_S, continueProcessing),
 
                 // Remove current null from stack. Default value setting ZoneType to unspecified if previous owner is null by escaping to this label
                 new CodeInstruction(OpCodes.Pop).WithLabels(skipLabel),
