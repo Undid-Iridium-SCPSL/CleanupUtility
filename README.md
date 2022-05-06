@@ -24,7 +24,9 @@ This solution Hijacks the methods that instantiate the ServerCreatePickup of ite
 
 **[EXILED](https://github.com/Exiled-Team/EXILED) must be installed for this to work.**
 
-Current plugin version: V1.1.5
+Emergency Bug Fix V1.1.6
+
+Current plugin version: V1.1.5 (If you do not have items being cleaned up fast in 914, this will work but I would recommend V1.1.6)
 
 ## REQUIREMENTS
 * Exiled: V5.2.0
