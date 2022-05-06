@@ -15,6 +15,7 @@ namespace CleanupUtility.Patches
     using HarmonyLib;
     using InventorySystem;
     using NorthwoodLib.Pools;
+    using System;
     using System.Collections.Generic;
     using System.Reflection.Emit;
     using static HarmonyLib.AccessTools;
@@ -31,15 +32,28 @@ namespace CleanupUtility.Patches
 
             LocalBuilder itemZone = generator.DeclareLocal(typeof(ZoneType));
 
-            int index = newInstructions.FindIndex(instruction => instruction.opcode == OpCodes.Ldarg_1) + 1;
+            int index = newInstructions.FindIndex(instruction => instruction.opcode == OpCodes.Ldarg_1);
 
             Label skipLabel = generator.DefineLabel();
             Label continueProcessing = generator.DefineLabel();
+            Label skipException = generator.DefineLabel();
+
+            LocalBuilder exceptionObject = generator.DeclareLocal(typeof(Exception));
+
+            // Our Catch (Try wrapper) block
+            ExceptionBlock catchBlock = new ExceptionBlock(ExceptionBlockType.BeginCatchBlock, typeof(Exception));
+
+            // Our Exception handling start
+            ExceptionBlock exceptionStart = new ExceptionBlock(ExceptionBlockType.BeginExceptionBlock, typeof(Exception));
+
+            // Our Exception handling end
+            ExceptionBlock exceptionEnd = new ExceptionBlock(ExceptionBlockType.EndExceptionBlock);
 
             newInstructions.InsertRange(index, new[]
             {
+
                 // Load ItemBase to EStack
-                new CodeInstruction(OpCodes.Ldarg_0),
+                new CodeInstruction(OpCodes.Ldarg_0).WithBlocks(exceptionStart).MoveLabelsFrom(newInstructions[index]),
 
                 // Load EStack to callvirt and get owner back on Estack
                 new CodeInstruction(OpCodes.Callvirt, PropertyGetter(typeof(Inventory), nameof(Inventory.gameObject))),
@@ -69,6 +83,16 @@ namespace CleanupUtility.Patches
 
                 // Then save the player zone to a local variable (This is all done early because spawn deletes information and made it default to surface)
                 new CodeInstruction(OpCodes.Stloc, itemZone.LocalIndex).WithLabels(continueProcessing),
+
+                // Correctly esacpes try-catch block.
+                new CodeInstruction(OpCodes.Leave_S, skipException),
+
+                // Load the exception from stack
+                new CodeInstruction(OpCodes.Nop, exceptionObject.LocalIndex).WithBlocks(catchBlock).WithBlocks(exceptionEnd),
+
+                // Allows original logic to run.
+                new CodeInstruction(OpCodes.Nop).WithLabels(skipException),
+
             });
 
             index = newInstructions.FindLastIndex(instruction => instruction.opcode == OpCodes.Ldloc_0);
