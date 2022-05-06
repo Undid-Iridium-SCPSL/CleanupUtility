@@ -32,7 +32,7 @@ namespace CleanupUtility.Patches
 
             LocalBuilder itemZone = generator.DeclareLocal(typeof(ZoneType));
 
-            int index = newInstructions.FindIndex(instruction => instruction.opcode == OpCodes.Ldarg_1) + 1;
+            int index = newInstructions.FindIndex(instruction => instruction.opcode == OpCodes.Ldarg_1);
 
             Label skipLabel = generator.DefineLabel();
             Label continueProcessing = generator.DefineLabel();
@@ -53,7 +53,7 @@ namespace CleanupUtility.Patches
             {
 
                 // Load ItemBase to EStack
-                new CodeInstruction(OpCodes.Ldarg_0).WithBlocks(exceptionStart),
+                new CodeInstruction(OpCodes.Ldarg_0).WithBlocks(exceptionStart).MoveLabelsFrom(newInstructions[index]),
 
                 // Load EStack to callvirt and get owner back on Estack
                 new CodeInstruction(OpCodes.Callvirt, PropertyGetter(typeof(Inventory), nameof(Inventory.gameObject))),
@@ -84,12 +84,13 @@ namespace CleanupUtility.Patches
                 // Then save the player zone to a local variable (This is all done early because spawn deletes information and made it default to surface)
                 new CodeInstruction(OpCodes.Stloc, itemZone.LocalIndex).WithLabels(continueProcessing),
 
-                // Jump over exception handling, which is not correct but allows entire function to be put into a try-catch block.
-                new CodeInstruction(OpCodes.Br, skipException),
+                // Correctly esacpes try-catch block.
+                new CodeInstruction(OpCodes.Leave_S, skipException),
 
                 // Load the exception from stack
                 new CodeInstruction(OpCodes.Nop, exceptionObject.LocalIndex).WithBlocks(catchBlock).WithBlocks(exceptionEnd),
 
+                // Allows original logic to run.
                 new CodeInstruction(OpCodes.Nop).WithLabels(skipException),
 
             });
