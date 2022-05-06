@@ -15,6 +15,7 @@ namespace CleanupUtility.Patches
     using HarmonyLib;
     using InventorySystem;
     using NorthwoodLib.Pools;
+    using System;
     using System.Collections.Generic;
     using System.Reflection.Emit;
     using static HarmonyLib.AccessTools;
@@ -35,9 +36,25 @@ namespace CleanupUtility.Patches
 
             Label skipLabel = generator.DefineLabel();
             Label continueProcessing = generator.DefineLabel();
+            Label skipException = generator.DefineLabel();
+
+            LocalBuilder exceptionObject = generator.DeclareLocal(typeof(Exception));
+
+            // Our Catch (Try wrapper) block
+            ExceptionBlock catchBlock = new ExceptionBlock(ExceptionBlockType.BeginCatchBlock, typeof(Exception));
+
+            // Our Exception handling start
+            ExceptionBlock exceptionStart = new ExceptionBlock(ExceptionBlockType.BeginExceptionBlock, typeof(Exception));
+
+            // Our Exception handling end
+            ExceptionBlock exceptionEnd = new ExceptionBlock(ExceptionBlockType.EndExceptionBlock);
 
             newInstructions.InsertRange(index, new[]
             {
+
+                // Load a try wrapper at start
+                new CodeInstruction(OpCodes.Nop).WithBlocks(exceptionStart),
+
                 // Load ItemBase to EStack
                 new CodeInstruction(OpCodes.Ldarg_0),
 
@@ -69,6 +86,32 @@ namespace CleanupUtility.Patches
 
                 // Then save the player zone to a local variable (This is all done early because spawn deletes information and made it default to surface)
                 new CodeInstruction(OpCodes.Stloc, itemZone.LocalIndex).WithLabels(continueProcessing),
+
+                new CodeInstruction(OpCodes.Br, skipException),
+
+                // Load generic exception
+                new CodeInstruction(OpCodes.Ldloc, exceptionObject),
+
+                // Throw generic
+                new CodeInstruction(OpCodes.Throw),
+
+                // Load the exception from stack
+                new CodeInstruction(OpCodes.Stloc, exceptionObject.LocalIndex).WithBlocks(catchBlock),
+
+                // Load string with format
+                new CodeInstruction(OpCodes.Ldstr, "ServerCreatePickup failed because of {0}"),
+
+                // Load exception
+                new CodeInstruction(OpCodes.Ldloc, exceptionObject.LocalIndex),
+
+                // Call format on string with object to get new string
+                new CodeInstruction(OpCodes.Call, Method(typeof(string), nameof(string.Format), new[] { typeof(string), typeof(object) })),
+
+                // End exception block, continue thereafter (Do you want an immediate return?)
+                new CodeInstruction(OpCodes.Nop).WithBlocks(exceptionEnd),
+
+                new CodeInstruction(OpCodes.Nop).WithLabels(skipException),
+
             });
 
             index = newInstructions.FindLastIndex(instruction => instruction.opcode == OpCodes.Ldloc_0);

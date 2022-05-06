@@ -10,6 +10,7 @@ namespace CleanupUtility
     using Exiled.API.Enums;
     using Exiled.API.Features;
     using Exiled.API.Features.Items;
+    using InventorySystem.Items.Usables.Scp330;
     using MEC;
     using System;
     using System.Collections.Generic;
