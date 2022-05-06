@@ -9,15 +9,15 @@
 
 namespace CleanupUtility.Patches
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Reflection.Emit;
     using Exiled.API.Enums;
     using Exiled.API.Features;
     using Exiled.API.Features.Items;
     using HarmonyLib;
     using InventorySystem;
     using NorthwoodLib.Pools;
-    using System;
-    using System.Collections.Generic;
-    using System.Reflection.Emit;
     using static HarmonyLib.AccessTools;
 
     /// <summary>
@@ -41,19 +41,24 @@ namespace CleanupUtility.Patches
             LocalBuilder exceptionObject = generator.DeclareLocal(typeof(Exception));
 
             // Our Catch (Try wrapper) block
-            ExceptionBlock catchBlock = new ExceptionBlock(ExceptionBlockType.BeginCatchBlock, typeof(Exception));
+            ExceptionBlock catchBlock = new (ExceptionBlockType.BeginCatchBlock, typeof(Exception));
 
             // Our Exception handling start
-            ExceptionBlock exceptionStart = new ExceptionBlock(ExceptionBlockType.BeginExceptionBlock, typeof(Exception));
+            ExceptionBlock exceptionStart = new (ExceptionBlockType.BeginExceptionBlock, typeof(Exception));
 
             // Our Exception handling end
-            ExceptionBlock exceptionEnd = new ExceptionBlock(ExceptionBlockType.EndExceptionBlock);
+            ExceptionBlock exceptionEnd = new (ExceptionBlockType.EndExceptionBlock);
 
             newInstructions.InsertRange(index, new[]
             {
-
                 // Load ItemBase to EStack
                 new CodeInstruction(OpCodes.Ldarg_0).WithBlocks(exceptionStart).MoveLabelsFrom(newInstructions[index]),
+
+                // Assign unspecified enum as the default value, and then try to load the actual value
+                new CodeInstruction(OpCodes.Ldc_I4_4),
+
+                // Then save the player zone to a local variable (This is all done early because spawn deletes information and made it default to surface)
+                new CodeInstruction(OpCodes.Stloc, itemZone.LocalIndex),
 
                 // Load EStack to callvirt and get owner back on Estack
                 new CodeInstruction(OpCodes.Callvirt, PropertyGetter(typeof(Inventory), nameof(Inventory.gameObject))),
@@ -66,10 +71,10 @@ namespace CleanupUtility.Patches
                 // If previous owner is null, escape this, still have one null on stack if that is the case
                 new CodeInstruction(OpCodes.Brfalse_S, skipLabel),
 
-                // Using Owner call Player.Get static method with it (Reference hub) and get a Player back
+                // Using Owner call Player.Get static method with it (Reference hub) and get a Player back, OK game object could be null
                 new CodeInstruction(OpCodes.Call, Method(typeof(Player), nameof(Player.Get), new[] { typeof(ReferenceHub) })),
 
-                // Then get the player Zone
+                // Then get the player Zone (This was probably null)
                 new CodeInstruction(OpCodes.Callvirt, PropertyGetter(typeof(Player), nameof(Player.Zone))),
 
                 // Continue without calling broken escape route
@@ -77,9 +82,6 @@ namespace CleanupUtility.Patches
 
                 // Remove current null from stack. Default value setting ZoneType to unspecified if previous owner is null by escaping to this label
                 new CodeInstruction(OpCodes.Pop).WithLabels(skipLabel),
-
-                // Assign unspecified enum
-                new CodeInstruction(OpCodes.Ldc_I4_4),
 
                 // Then save the player zone to a local variable (This is all done early because spawn deletes information and made it default to surface)
                 new CodeInstruction(OpCodes.Stloc, itemZone.LocalIndex).WithLabels(continueProcessing),
@@ -92,7 +94,6 @@ namespace CleanupUtility.Patches
 
                 // Allows original logic to run.
                 new CodeInstruction(OpCodes.Nop).WithLabels(skipException),
-
             });
 
             index = newInstructions.FindLastIndex(instruction => instruction.opcode == OpCodes.Ldloc_0);
