@@ -52,11 +52,8 @@ namespace CleanupUtility.Patches
             newInstructions.InsertRange(index, new[]
             {
 
-                // Load a try wrapper at start
-                new CodeInstruction(OpCodes.Nop).WithBlocks(exceptionStart),
-
                 // Load ItemBase to EStack
-                new CodeInstruction(OpCodes.Ldarg_0),
+                new CodeInstruction(OpCodes.Ldarg_0).WithBlocks(exceptionStart),
 
                 // Load EStack to callvirt and get owner back on Estack
                 new CodeInstruction(OpCodes.Callvirt, PropertyGetter(typeof(Inventory), nameof(Inventory.gameObject))),
@@ -87,28 +84,11 @@ namespace CleanupUtility.Patches
                 // Then save the player zone to a local variable (This is all done early because spawn deletes information and made it default to surface)
                 new CodeInstruction(OpCodes.Stloc, itemZone.LocalIndex).WithLabels(continueProcessing),
 
+                // Jump over exception handling, which is not correct but allows entire function to be put into a try-catch block.
                 new CodeInstruction(OpCodes.Br, skipException),
 
-                // Load generic exception
-                new CodeInstruction(OpCodes.Ldloc, exceptionObject),
-
-                // Throw generic
-                new CodeInstruction(OpCodes.Throw),
-
                 // Load the exception from stack
-                new CodeInstruction(OpCodes.Stloc, exceptionObject.LocalIndex).WithBlocks(catchBlock),
-
-                // Load string with format
-                new CodeInstruction(OpCodes.Ldstr, "ServerCreatePickup failed because of {0}"),
-
-                // Load exception
-                new CodeInstruction(OpCodes.Ldloc, exceptionObject.LocalIndex),
-
-                // Call format on string with object to get new string
-                new CodeInstruction(OpCodes.Call, Method(typeof(string), nameof(string.Format), new[] { typeof(string), typeof(object) })),
-
-                // End exception block, continue thereafter (Do you want an immediate return?)
-                new CodeInstruction(OpCodes.Nop).WithBlocks(exceptionEnd),
+                new CodeInstruction(OpCodes.Nop, exceptionObject.LocalIndex).WithBlocks(catchBlock).WithBlocks(exceptionEnd),
 
                 new CodeInstruction(OpCodes.Nop).WithLabels(skipException),
 
