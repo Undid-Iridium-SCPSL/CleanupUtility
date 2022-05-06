@@ -7,10 +7,10 @@
 
 namespace CleanupUtility
 {
-    using Exiled.API.Enums;
-    using Exiled.API.Interfaces;
     using System.Collections.Generic;
     using System.ComponentModel;
+    using Exiled.API.Enums;
+    using Exiled.API.Interfaces;
 
     /// <inheritdoc />
     public class Config : IConfig
@@ -34,7 +34,7 @@ namespace CleanupUtility
         /// Gets or sets a collection of items that should be deleted paired with the time, in seconds, to wait before deleting them.
         /// </summary>
         [Description("A collection of items that should be deleted paired with the time, in seconds, to wait before deleting them.")]
-        public Dictionary<ItemType, float> ItemFilter { get; set; } = new()
+        public Dictionary<ItemType, float> ItemFilter { get; set; } = new ()
         {
             { ItemType.KeycardJanitor, 600f },
             { ItemType.KeycardScientist, 600f },
@@ -52,6 +52,7 @@ namespace CleanupUtility
             { ItemType.GunCOM15, 600f },
             { ItemType.Medkit, 600f },
             { ItemType.Flashlight, 600f },
+            { ItemType.MicroHID, 600f },
             { ItemType.SCP500, 600f },
             { ItemType.SCP207, 600f },
             { ItemType.Ammo12gauge, 600f },
@@ -86,7 +87,7 @@ namespace CleanupUtility
         /// Gets or sets a collection of ItemTypes that should be deleted by Zone.
         /// </summary>
         [Description("Filter on what zone item type can be cleared from.")]
-        public Dictionary<ItemType, HashSet<ZoneType>> ZoneFilter { get; set; } = new()
+        public Dictionary<ItemType, HashSet<ZoneType>> ZoneFilter { get; set; } = new ()
         {
             { ItemType.KeycardJanitor, new HashSet<ZoneType>() { ZoneType.Unspecified } },
             { ItemType.KeycardScientist, new HashSet<ZoneType>() { ZoneType.Unspecified } },
@@ -104,6 +105,7 @@ namespace CleanupUtility
             { ItemType.GunCOM15, new HashSet<ZoneType>() { ZoneType.Unspecified } },
             { ItemType.Medkit, new HashSet<ZoneType>() { ZoneType.Unspecified } },
             { ItemType.Flashlight, new HashSet<ZoneType>() { ZoneType.Unspecified } },
+            { ItemType.MicroHID, new HashSet<ZoneType>() { ZoneType.Unspecified } },
             { ItemType.SCP500, new HashSet<ZoneType>() { ZoneType.Unspecified } },
             { ItemType.SCP207, new HashSet<ZoneType>() { ZoneType.Unspecified } },
             { ItemType.Ammo12gauge, new HashSet<ZoneType>() { ZoneType.Unspecified } },

@@ -7,9 +7,9 @@
 
 namespace CleanupUtility
 {
+    using System;
     using Exiled.API.Features;
     using HarmonyLib;
-    using System;
     using ServerEvents = Exiled.Events.Handlers.Server;
 
     /// <summary>
@@ -31,10 +31,10 @@ namespace CleanupUtility
         public override string Name => "CleanupUtility";
 
         /// <inheritdoc />
-        public override Version RequiredExiledVersion { get; } = new(5, 2, 0);
+        public override Version RequiredExiledVersion { get; } = new (5, 2, 0);
 
         /// <inheritdoc />
-        public override Version Version { get; } = new(1, 1, 6);
+        public override Version Version { get; } = new (1, 1, 7);
 
         /// <summary>
         /// Gets an instance of the <see cref="PickupChecker"/> class.
@@ -46,12 +46,12 @@ namespace CleanupUtility
         {
             Instance = this;
 
-            harmony = new Harmony($"com.Undid-Iridium.CleanupUtility.{DateTime.UtcNow.Ticks}");
-            harmony.PatchAll();
+            this.harmony = new Harmony($"com.Undid-Iridium.CleanupUtility.{DateTime.UtcNow.Ticks}");
+            this.harmony.PatchAll();
 
-            PickupChecker = new PickupChecker(this);
-            ServerEvents.RoundStarted += PickupChecker.OnRoundStarted;
-            ServerEvents.RestartingRound += PickupChecker.OnRestartingRound;
+            this.PickupChecker = new PickupChecker(this);
+            ServerEvents.RoundStarted += this.PickupChecker.OnRoundStarted;
+            ServerEvents.RestartingRound += this.PickupChecker.OnRestartingRound;
 
             base.OnEnabled();
         }
@@ -59,13 +59,13 @@ namespace CleanupUtility
         /// <inheritdoc />
         public override void OnDisabled()
         {
-            ServerEvents.RoundStarted -= PickupChecker.OnRoundStarted;
-            ServerEvents.RestartingRound -= PickupChecker.OnRestartingRound;
+            ServerEvents.RoundStarted -= this.PickupChecker.OnRoundStarted;
+            ServerEvents.RestartingRound -= this.PickupChecker.OnRestartingRound;
 
-            PickupChecker = null;
+            this.PickupChecker = null;
 
-            harmony.UnpatchAll(harmony.Id);
-            harmony = null;
+            this.harmony.UnpatchAll(this.harmony.Id);
+            this.harmony = null;
 
             Instance = null;
             base.OnDisabled();

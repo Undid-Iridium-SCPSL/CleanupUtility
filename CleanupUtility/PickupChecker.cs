@@ -7,14 +7,14 @@
 
 namespace CleanupUtility
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using Exiled.API.Enums;
     using Exiled.API.Features;
     using Exiled.API.Features.Items;
     using InventorySystem.Items.Usables.Scp330;
     using MEC;
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
     using UnityEngine;
 
     /// <summary>
@@ -23,7 +23,7 @@ namespace CleanupUtility
     public class PickupChecker
     {
         private readonly Plugin plugin;
-        private readonly Dictionary<Pickup, float> itemTracker = new();
+        private readonly Dictionary<Pickup, float> itemTracker = new ();
         private CoroutineHandle cleanupCoroutine;
 
         /// <summary>
@@ -44,48 +44,70 @@ namespace CleanupUtility
         {
             try
             {
-                if (plugin.Config.ItemFilter.TryGetValue(pickup.Type, out float time) && plugin.Config.ZoneFilter.TryGetValue(pickup.Type, out HashSet<ZoneType> acceptedZones))
+                bool foundItem = this.plugin.Config.ItemFilter.TryGetValue(pickup.Type, out float time);
+                if (foundItem && this.plugin.Config.ZoneFilter.TryGetValue(pickup.Type, out HashSet<ZoneType> acceptedZones))
                 {
                     if (acceptedZones.Contains(currentZone))
                     {
-                        itemTracker.Add(pickup, Time.time + time);
-                        Log.Debug($"Added a {pickup.Type} ({pickup.Serial}) to the tracker to be deleted in {time} seconds.", plugin.Config.Debug);
+                        this.itemTracker.Add(pickup, Time.time + time);
+
+                        // These types of calls get expensive, going to have branch logic first, then allocation of calls.
+                        if (this.plugin.Config.Debug)
+                        {
+                            Log.Debug($"Added a {pickup.Type} ({pickup.Serial}) to the tracker to be deleted in {time} seconds.", true);
+                        }
                     }
                     else if (acceptedZones.Contains(ZoneType.Unspecified))
                     {
-                        itemTracker.Add(pickup, Time.time + time);
-                        Log.Debug($"Added a {pickup.Type} ({pickup.Serial}) to the tracker to be deleted in {time} seconds with Unspecified marked as acceptable.", plugin.Config.Debug);
+                        this.itemTracker.Add(pickup, Time.time + time);
+
+                        // These types of calls get expensive, going to have branch logic first, then allocation of calls.
+                        if (this.plugin.Config.Debug)
+                        {
+                            Log.Debug($"Added a {pickup.Type} ({pickup.Serial}) to the tracker to be deleted in {time} seconds with Unspecified marked as acceptable.", true);
+                        }
                     }
-                    else
+                    else if (this.plugin.Config.Debug)
                     {
-                        Log.Debug($"Could not add item {pickup.Type} because zones were not equal current {currentZone} vs accepted {string.Join(Environment.NewLine, acceptedZones)}", plugin.Config.Debug);
+                        // Added this if user wants to see why item was not added. Again, condition of config file much
+                        Log.Debug($"Could not add item {pickup.Type} because zones were not equal current {currentZone} vs accepted {string.Join(Environment.NewLine, acceptedZones)}", true);
                     }
+                }
+                else if (foundItem)
+                {
+                    // We are going to assume that the user forgot to specify the zone. Therefore, the zone is unspecified.
+                    if (this.plugin.Config.Debug)
+                    {
+                        Log.Debug($"Added a {pickup.Type} ({pickup.Serial}) to the tracker to be deleted in {time} seconds, defaulting to unspecified zone.", true);
+                    }
+
+                    this.itemTracker.Add(pickup, Time.time + time);
                 }
             }
             catch (Exception ex)
             {
-                Log.Debug($"Pickup.add failed because of {ex}", plugin.Config.Debug);
+                Log.Debug($"Pickup.add failed because of {ex}", this.plugin.Config.Debug);
             }
         }
 
         /// <inheritdoc cref="Exiled.Events.Handlers.Server.OnRoundStarted"/>
         public void OnRoundStarted()
         {
-            itemTracker.Clear();
-            if (cleanupCoroutine.IsRunning)
+            this.itemTracker.Clear();
+            if (this.cleanupCoroutine.IsRunning)
             {
-                Timing.KillCoroutines(cleanupCoroutine);
+                Timing.KillCoroutines(this.cleanupCoroutine);
             }
 
-            cleanupCoroutine = Timing.RunCoroutine(CheckItems());
+            this.cleanupCoroutine = Timing.RunCoroutine(this.CheckItems());
         }
 
         /// <inheritdoc cref="Exiled.Events.Handlers.Server.OnRestartingRound"/>
         public void OnRestartingRound()
         {
-            if (cleanupCoroutine.IsRunning)
+            if (this.cleanupCoroutine.IsRunning)
             {
-                Timing.KillCoroutines(cleanupCoroutine);
+                Timing.KillCoroutines(this.cleanupCoroutine);
             }
         }
 
@@ -93,7 +115,7 @@ namespace CleanupUtility
         {
             if (!pickup.Base)
             {
-                itemTracker.Remove(pickup);
+                this.itemTracker.Remove(pickup);
                 return;
             }
 
@@ -102,25 +124,25 @@ namespace CleanupUtility
                 return;
             }
 
-            Log.Debug($"Deleting an item of type {pickup.Type} ({pickup.Serial}).", plugin.Config.Debug);
+            Log.Debug($"Deleting an item of type {pickup.Type} ({pickup.Serial}).", this.plugin.Config.Debug);
             pickup.Destroy();
-            itemTracker.Remove(pickup);
+            this.itemTracker.Remove(pickup);
         }
 
         private IEnumerator<float> CheckItems()
         {
             while (Round.IsStarted)
             {
-                yield return Timing.WaitForSeconds(plugin.Config.CheckInterval);
-                if (itemTracker.IsEmpty())
+                yield return Timing.WaitForSeconds(this.plugin.Config.CheckInterval);
+                if (this.itemTracker.IsEmpty())
                 {
                     continue;
                 }
 
-                for (int i = 0; i < itemTracker.Count; i++)
+                for (int i = 0; i < this.itemTracker.Count; i++)
                 {
-                    KeyValuePair<Pickup, float> item = itemTracker.ElementAt(i);
-                    CheckItem(item.Key, item.Value);
+                    KeyValuePair<Pickup, float> item = this.itemTracker.ElementAt(i);
+                    this.CheckItem(item.Key, item.Value);
                 }
             }
         }
