@@ -49,8 +49,7 @@ namespace CleanupUtility.Patches
             // Our Exception handling end
             ExceptionBlock exceptionEnd = new (ExceptionBlockType.EndExceptionBlock);
 
-            newInstructions.InsertRange(index, new[]
-            {
+            List<CodeInstruction> instructionToAdd = new List<CodeInstruction>(){ 
                 // Load ItemBase to EStack
                 new CodeInstruction(OpCodes.Ldarg_0).WithBlocks(exceptionStart).MoveLabelsFrom(newInstructions[index]),
 
@@ -90,11 +89,14 @@ namespace CleanupUtility.Patches
                 new CodeInstruction(OpCodes.Leave_S, skipException),
 
                 // Load the exception from stack
-                new CodeInstruction(OpCodes.Nop, exceptionObject.LocalIndex).WithBlocks(catchBlock).WithBlocks(exceptionEnd),
+                new CodeInstruction(OpCodes.Nop).WithBlocks(catchBlock).WithBlocks(exceptionEnd),
+            };
 
-                // Allows original logic to run.
-                new CodeInstruction(OpCodes.Nop).WithLabels(skipException),
-            });
+            // Add our previous instructions
+            newInstructions.InsertRange(index, instructionToAdd);
+
+            // Add our skip at end
+            newInstructions[index + instructionToAdd.Count].WithLabels(skipException);
 
             index = newInstructions.FindLastIndex(instruction => instruction.opcode == OpCodes.Ldloc_0);
             newInstructions.InsertRange(index, new[]
