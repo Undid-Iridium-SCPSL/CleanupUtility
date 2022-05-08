@@ -49,36 +49,36 @@ namespace CleanupUtility.Patches
             // Our Exception handling end
             ExceptionBlock exceptionEnd = new (ExceptionBlockType.EndExceptionBlock);
 
-            newInstructions.InsertRange(index, new[]
+            List<CodeInstruction> instructionToAdd = new ()
             {
                 // Load ItemBase to EStack
                 new CodeInstruction(OpCodes.Ldarg_0).WithBlocks(exceptionStart).MoveLabelsFrom(newInstructions[index]),
 
                 // Assign unspecified enum as the default value, and then try to load the actual value
-                new CodeInstruction(OpCodes.Ldc_I4_4),
+                new (OpCodes.Ldc_I4_4),
 
                 // Then save the player zone to a local variable (This is all done early because spawn deletes information and made it default to surface)
-                new CodeInstruction(OpCodes.Stloc, itemZone.LocalIndex),
+                new (OpCodes.Stloc, itemZone.LocalIndex),
 
                 // Load EStack to callvirt and get owner back on Estack
-                new CodeInstruction(OpCodes.Callvirt, PropertyGetter(typeof(Inventory), nameof(Inventory.gameObject))),
+                new (OpCodes.Callvirt, PropertyGetter(typeof(Inventory), nameof(Inventory.gameObject))),
 
-                new CodeInstruction(OpCodes.Call, Method(typeof(ReferenceHub), nameof(ReferenceHub.GetHub), new[] { typeof(UnityEngine.GameObject) })),
+                new (OpCodes.Call, Method(typeof(ReferenceHub), nameof(ReferenceHub.GetHub), new[] { typeof(UnityEngine.GameObject) })),
 
                 // Duplicate ItemBase.Owner (if null then two nulls)
-                new CodeInstruction(OpCodes.Dup),
+                new (OpCodes.Dup),
 
                 // If previous owner is null, escape this, still have one null on stack if that is the case
-                new CodeInstruction(OpCodes.Brfalse_S, skipLabel),
+                new (OpCodes.Brfalse_S, skipLabel),
 
                 // Using Owner call Player.Get static method with it (Reference hub) and get a Player back, OK game object could be null
-                new CodeInstruction(OpCodes.Call, Method(typeof(Player), nameof(Player.Get), new[] { typeof(ReferenceHub) })),
+                new (OpCodes.Call, Method(typeof(Player), nameof(Player.Get), new[] { typeof(ReferenceHub) })),
 
                 // Then get the player Zone (This was probably null)
-                new CodeInstruction(OpCodes.Callvirt, PropertyGetter(typeof(Player), nameof(Player.Zone))),
+                new (OpCodes.Callvirt, PropertyGetter(typeof(Player), nameof(Player.Zone))),
 
                 // Continue without calling broken escape route
-                new CodeInstruction(OpCodes.Br_S, continueProcessing),
+                new (OpCodes.Br_S, continueProcessing),
 
                 // Remove current null from stack. Default value setting ZoneType to unspecified if previous owner is null by escaping to this label
                 new CodeInstruction(OpCodes.Pop).WithLabels(skipLabel),
@@ -87,14 +87,17 @@ namespace CleanupUtility.Patches
                 new CodeInstruction(OpCodes.Stloc, itemZone.LocalIndex).WithLabels(continueProcessing),
 
                 // Correctly esacpes try-catch block.
-                new CodeInstruction(OpCodes.Leave_S, skipException),
+                new (OpCodes.Leave_S, skipException),
 
                 // Load the exception from stack
-                new CodeInstruction(OpCodes.Nop, exceptionObject.LocalIndex).WithBlocks(catchBlock).WithBlocks(exceptionEnd),
+                new CodeInstruction(OpCodes.Nop).WithBlocks(catchBlock).WithBlocks(exceptionEnd),
+            };
 
-                // Allows original logic to run.
-                new CodeInstruction(OpCodes.Nop).WithLabels(skipException),
-            });
+            // Add our previous instructions
+            newInstructions.InsertRange(index, instructionToAdd);
+
+            // Add our skip at end
+            newInstructions[index + instructionToAdd.Count].WithLabels(skipException);
 
             index = newInstructions.FindLastIndex(instruction => instruction.opcode == OpCodes.Ldloc_0);
             newInstructions.InsertRange(index, new[]
