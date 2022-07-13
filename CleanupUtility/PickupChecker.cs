@@ -54,7 +54,7 @@ namespace CleanupUtility
                         // These types of calls get expensive, going to have branch logic first, then allocation of calls.
                         if (this.plugin.Config.Debug)
                         {
-                            Log.Debug($"Added a {pickup.Type} ({pickup.Serial}) to the tracker to be deleted in {time} seconds.", true);
+                            Log.Debug($"Added a {pickup.Type} ({pickup.Serial}) to the tracker to be deleted in {time} seconds.");
                         }
                     }
                     else if (acceptedZones.Contains(ZoneType.Unspecified))
@@ -64,13 +64,13 @@ namespace CleanupUtility
                         // These types of calls get expensive, going to have branch logic first, then allocation of calls.
                         if (this.plugin.Config.Debug)
                         {
-                            Log.Debug($"Added a {pickup.Type} ({pickup.Serial}) to the tracker to be deleted in {time} seconds with Unspecified marked as acceptable.", true);
+                            Log.Debug($"Added a {pickup.Type} ({pickup.Serial}) to the tracker to be deleted in {time} seconds with Unspecified marked as acceptable.");
                         }
                     }
                     else if (this.plugin.Config.Debug)
                     {
                         // Added this if user wants to see why item was not added. Again, condition of config file much
-                        Log.Debug($"Could not add item {pickup.Type} because zones were not equal current {currentZone} vs accepted {string.Join(Environment.NewLine, acceptedZones)}", true);
+                        Log.Debug($"Could not add item {pickup.Type} because zones were not equal current {currentZone} vs accepted {string.Join(Environment.NewLine, acceptedZones)}");
                     }
                 }
                 else if (foundItem)
@@ -78,7 +78,7 @@ namespace CleanupUtility
                     // We are going to assume that the user forgot to specify the zone. Therefore, the zone is unspecified.
                     if (this.plugin.Config.Debug)
                     {
-                        Log.Debug($"Added a {pickup.Type} ({pickup.Serial}) to the tracker to be deleted in {time} seconds, defaulting to unspecified zone.", true);
+                        Log.Debug($"Added a {pickup.Type} ({pickup.Serial}) to the tracker to be deleted in {time} seconds, defaulting to unspecified zone.");
                     }
 
                     this.itemTracker.Add(pickup, Time.time + time);
