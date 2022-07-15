@@ -31,10 +31,16 @@ namespace CleanupUtility
         public float CheckInterval { get; set; } = 2f;
 
         /// <summary>
+        /// Gets or sets the time, in seconds, between each check of the list of ragdolls to delete.
+        /// </summary>
+        [Description("The time, in seconds, between each check of the list of ragdolls to delete.")]
+        public float CheckRagDollInterval { get; set; } = 2f;
+
+        /// <summary>
         /// Gets or sets a collection of items that should be deleted paired with the time, in seconds, to wait before deleting them.
         /// </summary>
         [Description("A collection of items that should be deleted paired with the time, in seconds, to wait before deleting them.")]
-        public Dictionary<ItemType, float> ItemFilter { get; set; } = new ()
+        public Dictionary<ItemType, float> ItemFilter { get; set; } = new()
         {
             { ItemType.KeycardJanitor, 600f },
             { ItemType.KeycardScientist, 600f },
@@ -134,6 +140,25 @@ namespace CleanupUtility
             { ItemType.SCP330, new HashSet<ZoneType>() { ZoneType.Unspecified } },
             { ItemType.SCP2176, new HashSet<ZoneType>() { ZoneType.Unspecified } },
             { ItemType.SCP1853, new HashSet<ZoneType>() { ZoneType.Unspecified } },
+        };
+
+        /// <summary>
+        /// Gets or sets existence time limit for ragdolls.
+        /// </summary>
+        [Description("Time limit for ragdoll existence.")]
+        public float RagdollExistenceLimit { get; set; }
+
+        /// <summary>
+        /// Gets or sets a acceptable cleanup Zones.
+        /// </summary>
+        [Description("Filter on what zone item type can be cleared from.")]
+        public HashSet<ZoneType> RagdollAcceptableZones { get; set; } = new HashSet<ZoneType>()
+        {
+            ZoneType.Unspecified,
+            ZoneType.Surface,
+            ZoneType.Entrance,
+            ZoneType.HeavyContainment,
+            ZoneType.LightContainment,
         };
     }
 }
