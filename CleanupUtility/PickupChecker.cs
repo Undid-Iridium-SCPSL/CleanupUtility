@@ -24,7 +24,8 @@ namespace CleanupUtility
     {
         private readonly Plugin plugin;
         private readonly Dictionary<Pickup, float> itemTracker = new ();
-        private CoroutineHandle cleanupCoroutine;
+        private CoroutineHandle cleanupItemsCoroutine;
+        private CoroutineHandle cleanupRagDollsCoroutine;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PickupChecker"/> class.
@@ -94,41 +95,33 @@ namespace CleanupUtility
         public void OnRoundStarted()
         {
             this.itemTracker.Clear();
-            if (this.cleanupCoroutine.IsRunning)
+            if (this.cleanupItemsCoroutine.IsRunning)
             {
-                Timing.KillCoroutines(this.cleanupCoroutine);
+                Timing.KillCoroutines(this.cleanupItemsCoroutine);
             }
 
-            this.cleanupCoroutine = Timing.RunCoroutine(this.CheckItems());
+            if(this.cleanupRagDollsCoroutine.IsRunning)
+            {
+                Timing.KillCoroutines(this.cleanupRagDollsCoroutine);
+            }
+
+            this.cleanupItemsCoroutine = Timing.RunCoroutine(this.CheckItems());
+            this.cleanupRagDollsCoroutine = Timing.RunCoroutine(this.CheckRagDolls());
         }
 
         /// <inheritdoc cref="Exiled.Events.Handlers.Server.OnRestartingRound"/>
         public void OnRestartingRound()
         {
-            if (this.cleanupCoroutine.IsRunning)
+            if (this.cleanupItemsCoroutine.IsRunning)
             {
-                Timing.KillCoroutines(this.cleanupCoroutine);
+                Timing.KillCoroutines(this.cleanupItemsCoroutine);
             }
         }
 
-        private void CheckItem(Pickup pickup, float expirationTime)
-        {
-            if (!pickup.Base)
-            {
-                this.itemTracker.Remove(pickup);
-                return;
-            }
-
-            if (pickup.InUse || Time.time < expirationTime)
-            {
-                return;
-            }
-
-            Log.Debug($"Deleting an item of type {pickup.Type} ({pickup.Serial}).", this.plugin.Config.Debug);
-            pickup.Destroy();
-            this.itemTracker.Remove(pickup);
-        }
-
+        /// <summary>
+        /// Coroutine to iteratively check all currently tracked items to be removed within a zone/time limit.
+        /// </summary>
+        /// <returns> <see cref="IEnumerable{T}"/> which is used to determine how long this generator function should wait. </returns>
         private IEnumerator<float> CheckItems()
         {
             while (Round.IsStarted)
@@ -146,5 +139,78 @@ namespace CleanupUtility
                 }
             }
         }
+
+        /// <summary>
+        /// Checks the current pickup with the experitation time.
+        /// </summary>
+        /// <param name="pickup"> <see cref="Pickup"/> to verify whether to delete. </param>
+        /// <param name="expirationTime"> Time limit for pickup. </param>
+        private void CheckItem(Pickup pickup, float expirationTime)
+        {
+            if (pickup?.Base is null)
+            {
+                this.itemTracker.Remove(pickup);
+                return;
+            }
+
+            if (pickup.InUse || Time.time < expirationTime)
+            {
+                return;
+            }
+
+            Log.Debug($"Deleting an item of type {pickup.Type} ({pickup.Serial}).", this.plugin.Config.Debug);
+            pickup.Destroy();
+            this.itemTracker.Remove(pickup);
+        }
+
+        /// <summary>
+        /// Coroutine to iteratively check all currently ragdolls to be removed within a zone/time limit.
+        /// </summary>
+        /// <returns> <see cref="IEnumerable{T}"/> which is used to determine how long this generator function should wait. </returns>
+        private IEnumerator<float> CheckRagDolls()
+        {
+            while (Round.IsStarted)
+            {
+                yield return Timing.WaitForSeconds(this.plugin.Config.CheckRagDollInterval);
+                if (Map.Ragdolls.IsEmpty())
+                {
+                    continue;
+                }
+
+                for (int i = 0; i < Map.Ragdolls.Count; i++)
+                {
+                    Ragdoll curRagdoll = Map.Ragdolls.ElementAt(i);
+                    this.CheckRagDoll(curRagdoll);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Verifies the ragdoll can be cleanup, and is not null.
+        /// </summary>
+        /// <param name="curRagdoll"> <see cref="Ragdoll"/> to potentially clean up. </param>
+        private void CheckRagDoll(Ragdoll curRagdoll)
+        {
+            if (curRagdoll.Base is null)
+            {
+                return;
+            }
+
+            if (curRagdoll.Base.Info.ExistenceTime < this.plugin.Config.RagdollExistenceLimit)
+            {
+                return;
+            }
+
+            if (!this.plugin.Config.RagdollAcceptableZones.Contains(curRagdoll.Zone))
+            {
+                return;
+            }
+
+            Log.Debug($"Deleting a Radoll {curRagdoll} in zone {curRagdoll.Zone}", this.plugin.Config.Debug);
+
+            curRagdoll.Delete();
+            return;
+        }
+
     }
 }
