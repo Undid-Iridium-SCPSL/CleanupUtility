@@ -25,6 +25,16 @@ namespace CleanupUtility
         public bool Debug { get; set; } = false;
 
         /// <summary>
+        /// Gets or sets a value indicating whether items should be cleaned up.
+        /// </summary>
+        public bool CleanupItems { get; internal set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether ragdolls should be cleaned up.
+        /// </summary>
+        public bool CleanupRagDolls { get; internal set; }
+
+        /// <summary>
         /// Gets or sets the time, in seconds, between each check of the list of items to delete.
         /// </summary>
         [Description("The time, in seconds, between each check of the list of items to delete.")]
@@ -151,7 +161,7 @@ namespace CleanupUtility
         /// <summary>
         /// Gets or sets a acceptable cleanup Zones.
         /// </summary>
-        [Description("Filter on what zone item type can be cleared from.")]
+        [Description("Filter on what zone ragdolls can be cleared from.")]
         public HashSet<ZoneType> RagdollAcceptableZones { get; set; } = new HashSet<ZoneType>()
         {
             ZoneType.Unspecified,

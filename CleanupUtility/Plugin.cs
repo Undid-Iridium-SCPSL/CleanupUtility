@@ -34,7 +34,7 @@ namespace CleanupUtility
         public override Version RequiredExiledVersion { get; } = new(5, 3, 0);
 
         /// <inheritdoc />
-        public override Version Version { get; } = new(1, 2, 1);
+        public override Version Version { get; } = new(1, 2, 2);
 
         /// <summary>
         /// Gets an instance of the <see cref="PickupChecker"/> class.

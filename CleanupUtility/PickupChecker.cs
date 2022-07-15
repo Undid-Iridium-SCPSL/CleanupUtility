@@ -105,8 +105,15 @@ namespace CleanupUtility
                 Timing.KillCoroutines(this.cleanupRagDollsCoroutine);
             }
 
-            this.cleanupItemsCoroutine = Timing.RunCoroutine(this.CheckItems());
-            this.cleanupRagDollsCoroutine = Timing.RunCoroutine(this.CheckRagDolls());
+            if (this.plugin.Config.CleanupItems)
+            {
+                this.cleanupItemsCoroutine = Timing.RunCoroutine(this.CheckItems());
+            }
+
+            if (this.plugin.Config.CleanupRagDolls)
+            {
+                this.cleanupRagDollsCoroutine = Timing.RunCoroutine(this.CheckRagDolls());
+            }
         }
 
         /// <inheritdoc cref="Exiled.Events.Handlers.Server.OnRestartingRound"/>
