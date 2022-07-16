@@ -10,6 +10,7 @@ namespace CleanupUtility
     using System;
     using Exiled.API.Features;
     using HarmonyLib;
+    using PlayerEvents = Exiled.Events.Handlers.Player;
     using ServerEvents = Exiled.Events.Handlers.Server;
 
     /// <summary>
@@ -34,7 +35,7 @@ namespace CleanupUtility
         public override Version RequiredExiledVersion { get; } = new(5, 3, 0);
 
         /// <inheritdoc />
-        public override Version Version { get; } = new(1, 2, 2);
+        public override Version Version { get; } = new(1, 2, 3);
 
         /// <summary>
         /// Gets an instance of the <see cref="PickupChecker"/> class.
@@ -52,6 +53,18 @@ namespace CleanupUtility
             this.PickupChecker = new PickupChecker(this);
             ServerEvents.RoundStarted += this.PickupChecker.OnRoundStarted;
             ServerEvents.RestartingRound += this.PickupChecker.OnRestartingRound;
+            if (this.Config.CleanInPocket)
+            {
+                if (this.Config.CleanupItems)
+                {
+                    PlayerEvents.EnteringPocketDimension += this.PickupChecker.OnPocketEnter;
+                }
+
+                if (this.Config.CleanupRagDolls)
+                {
+                    PlayerEvents.EscapingPocketDimension += this.PickupChecker.OnPocketExit;
+                }
+            }
 
             base.OnEnabled();
         }
@@ -61,6 +74,19 @@ namespace CleanupUtility
         {
             ServerEvents.RoundStarted -= this.PickupChecker.OnRoundStarted;
             ServerEvents.RestartingRound -= this.PickupChecker.OnRestartingRound;
+
+            if (this.Config.CleanInPocket)
+            {
+                if (this.Config.CleanupItems)
+                {
+                    PlayerEvents.EnteringPocketDimension -= this.PickupChecker.OnPocketEnter;
+                }
+
+                if (this.Config.CleanupRagDolls)
+                {
+                    PlayerEvents.EscapingPocketDimension -= this.PickupChecker.OnPocketExit;
+                }
+            }
 
             this.PickupChecker = null;
 

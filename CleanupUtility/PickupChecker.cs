@@ -13,6 +13,7 @@ namespace CleanupUtility
     using Exiled.API.Enums;
     using Exiled.API.Features;
     using Exiled.API.Features.Items;
+    using Exiled.Events.EventArgs;
     using InventorySystem.Items.Usables.Scp330;
     using MEC;
     using UnityEngine;
@@ -23,7 +24,7 @@ namespace CleanupUtility
     public class PickupChecker
     {
         private readonly Plugin plugin;
-        private readonly Dictionary<Pickup, float> itemTracker = new ();
+        private readonly Dictionary<Pickup, float> itemTracker = new();
         private CoroutineHandle cleanupItemsCoroutine;
         private CoroutineHandle cleanupRagDollsCoroutine;
 
@@ -41,12 +42,31 @@ namespace CleanupUtility
         /// </summary>
         /// <param name="pickup">The item to add.</param>
         /// <param name="currentZone"> Current player zone for player hub. </param>
-        public void Add(Pickup pickup, ZoneType currentZone)
+        /// <param name="curPlayer"> Current player. </param>
+        public void Add(Pickup pickup, ZoneType currentZone, Player curPlayer)
         {
             try
             {
+
                 bool foundItem = this.plugin.Config.ItemFilter.TryGetValue(pickup.Type, out float time);
-                if (foundItem && this.plugin.Config.ZoneFilter.TryGetValue(pickup.Type, out HashSet<ZoneType> acceptedZones))
+                bool isPocket = curPlayer.SessionVariables.TryGetValue("InPocket", out object inPocket);
+                if (foundItem && isPocket)
+                {
+                    if ((bool)inPocket)
+                    {
+                        if (this.plugin.Config.CleanInPocket)
+                        {
+                            Log.Debug($"Added a {pickup.Type} ({pickup.Serial}) to the tracker to be deleted in {time} seconds from pocket dimension.", this.plugin.Config.Debug);
+                            this.itemTracker.Add(pickup, Time.time + time);
+                            return;
+                        }
+                        else if (!this.plugin.Config.CleanInPocket)
+                        {
+                            return;
+                        }
+                    }
+                }
+                else if (foundItem && this.plugin.Config.ZoneFilter.TryGetValue(pickup.Type, out HashSet<ZoneType> acceptedZones))
                 {
                     if (acceptedZones.Contains(currentZone))
                     {
@@ -73,8 +93,11 @@ namespace CleanupUtility
                         // Added this if user wants to see why item was not added. Again, condition of config file much
                         Log.Debug($"Could not add item {pickup.Type} because zones were not equal current {currentZone} vs accepted {string.Join(Environment.NewLine, acceptedZones)}");
                     }
+
+                    return;
                 }
-                else if (foundItem)
+
+                if (foundItem)
                 {
                     // We are going to assume that the user forgot to specify the zone. Therefore, the zone is unspecified.
                     if (this.plugin.Config.Debug)
@@ -126,6 +149,24 @@ namespace CleanupUtility
         }
 
         /// <summary>
+        /// When a player enteres the pocket dimension, we will mark them as left.
+        /// </summary>
+        /// <param name="ev"> Current pocket dimension event info. </param>
+        internal void OnPocketExit(EscapingPocketDimensionEventArgs ev)
+        {
+            ev.Player.SessionVariables["InPocket"] = false;
+        }
+
+        /// <summary>
+        /// When a player enteres the pocket dimension, we will mark them as entered.
+        /// </summary>
+        /// <param name="ev"> Current pocket dimension event info. </param>
+        internal void OnPocketEnter(EnteringPocketDimensionEventArgs ev)
+        {
+            ev.Player.SessionVariables.Add("InPocket", true);
+        }
+
+        /// <summary>
         /// Coroutine to iteratively check all currently tracked items to be removed within a zone/time limit.
         /// </summary>
         /// <returns> <see cref="IEnumerable{T}"/> which is used to determine how long this generator function should wait. </returns>
@@ -138,7 +179,6 @@ namespace CleanupUtility
                 {
                     continue;
                 }
-
                 for (int i = 0; i < this.itemTracker.Count; i++)
                 {
                     KeyValuePair<Pickup, float> item = this.itemTracker.ElementAt(i);

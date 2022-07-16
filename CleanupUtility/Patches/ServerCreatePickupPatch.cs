@@ -34,6 +34,8 @@ namespace CleanupUtility.Patches
 
             LocalBuilder itemZone = generator.DeclareLocal(typeof(ZoneType));
 
+            LocalBuilder curPlayer = generator.DeclareLocal(typeof(Player));
+
             int index = newInstructions.FindIndex(instruction => instruction.opcode == OpCodes.Ldarg_1);
 
             Label skipLabel = generator.DefineLabel();
@@ -75,6 +77,12 @@ namespace CleanupUtility.Patches
 
                 // Using Owner call Player.Get static method with it (Reference hub) and get a Player back, OK game object could be null
                 new(OpCodes.Call, Method(typeof(Player), nameof(Player.Get), new[] { typeof(ReferenceHub) })),
+
+                // Duplicate player to be copied
+                new(OpCodes.Dup),
+
+                // Store player to local var
+                new(OpCodes.Stloc, curPlayer.LocalIndex),
 
                 // Then get the player Zone (This was probably null)
                 new(OpCodes.Callvirt, PropertyGetter(typeof(Player), nameof(Player.Zone))),
@@ -127,8 +135,11 @@ namespace CleanupUtility.Patches
                 // Calls arguemnt 1 from function call unto EStack (Zone)
                 new CodeInstruction(OpCodes.Ldloc, itemZone.LocalIndex),
 
+                // Calls arguemnt 1 from function call unto EStack (Zone)
+                new CodeInstruction(OpCodes.Ldloc, curPlayer.LocalIndex),
+
                 // EStack variable used, [PickupChecker (Callvirt arg 0 (Instance)), Pickup (Arg 1 (Param))]
-                new CodeInstruction(OpCodes.Callvirt, Method(typeof(PickupChecker), nameof(PickupChecker.Add), new[] { typeof(Pickup), typeof(ZoneType) })),
+                new CodeInstruction(OpCodes.Callvirt, Method(typeof(PickupChecker), nameof(PickupChecker.Add), new[] { typeof(Pickup), typeof(ZoneType), typeof(Player) })),
             });
 
             for (int z = 0; z < newInstructions.Count; z++)
