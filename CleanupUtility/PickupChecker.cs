@@ -158,7 +158,10 @@ namespace CleanupUtility
         /// <param name="ev"> Event for changing role. </param>
         internal void OnRoleChange(ChangingRoleEventArgs ev)
         {
-            ev?.Player?.SessionVariables.Remove("InPocket");
+            Timing.CallDelayed(this.plugin.Config.CheckInterval + 5, () =>
+            {
+                ev?.Player?.SessionVariables.Remove("InPocket");
+            });
         }
 
         /// <summary>
@@ -167,7 +170,10 @@ namespace CleanupUtility
         /// <param name="ev"> Event for dying. </param>
         internal void OnDied(DiedEventArgs ev)
         {
-            ev?.Target?.SessionVariables.Remove("InPocket");
+            Timing.CallDelayed(this.plugin.Config.CheckInterval + 5, () =>
+            {
+                ev?.Target?.SessionVariables.Remove("InPocket");
+            });
         }
 
         /// <summary>
