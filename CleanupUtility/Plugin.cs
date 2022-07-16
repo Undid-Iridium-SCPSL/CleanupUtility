@@ -55,15 +55,11 @@ namespace CleanupUtility
             ServerEvents.RestartingRound += this.PickupChecker.OnRestartingRound;
             if (this.Config.CleanInPocket)
             {
-                if (this.Config.CleanupItems)
-                {
-                    PlayerEvents.EnteringPocketDimension += this.PickupChecker.OnPocketEnter;
-                }
-
-                if (this.Config.CleanupRagDolls)
-                {
-                    PlayerEvents.EscapingPocketDimension += this.PickupChecker.OnPocketExit;
-                }
+                PlayerEvents.EnteringPocketDimension += this.PickupChecker.OnPocketEnter;
+                PlayerEvents.EscapingPocketDimension += this.PickupChecker.OnPocketExit;
+                // On Died might be overkill but OnRoleChange is much more guaranteed.
+                PlayerEvents.Died += this.PickupChecker.OnDied;
+                PlayerEvents.ChangingRole += this.PickupChecker.OnRoleChange;
             }
 
             base.OnEnabled();
@@ -77,15 +73,10 @@ namespace CleanupUtility
 
             if (this.Config.CleanInPocket)
             {
-                if (this.Config.CleanupItems)
-                {
-                    PlayerEvents.EnteringPocketDimension -= this.PickupChecker.OnPocketEnter;
-                }
-
-                if (this.Config.CleanupRagDolls)
-                {
-                    PlayerEvents.EscapingPocketDimension -= this.PickupChecker.OnPocketExit;
-                }
+                PlayerEvents.EnteringPocketDimension -= this.PickupChecker.OnPocketEnter;
+                PlayerEvents.EscapingPocketDimension -= this.PickupChecker.OnPocketExit;
+                PlayerEvents.Died -= this.PickupChecker.OnDied;
+                PlayerEvents.ChangingRole -= this.PickupChecker.OnRoleChange;
             }
 
             this.PickupChecker = null;

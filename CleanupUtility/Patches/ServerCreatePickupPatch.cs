@@ -5,8 +5,6 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-#pragma warning disable SA1118
-
 namespace CleanupUtility.Patches
 {
     using System;
@@ -130,7 +128,7 @@ namespace CleanupUtility.Patches
                 new CodeInstruction(OpCodes.Ldloc_0),
 
                 // Calls pickup method using local variable 0 (Which is on Eval Stack [ItemPickupBase]) and it gets back a Pickup object onto the EStack [Pickup]
-                new CodeInstruction(OpCodes.Call, Method(typeof(Pickup), nameof(Pickup.Get), new[] {typeof(ItemPickupBase)})),
+                new CodeInstruction(OpCodes.Call, Method(typeof(Pickup), nameof(Pickup.Get), new[] { typeof(ItemPickupBase) })),
 
                 // Calls arguemnt 1 from function call unto EStack (Zone)
                 new CodeInstruction(OpCodes.Ldloc, itemZone.LocalIndex),

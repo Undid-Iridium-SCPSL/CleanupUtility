@@ -47,7 +47,6 @@ namespace CleanupUtility
         {
             try
             {
-
                 bool foundItem = this.plugin.Config.ItemFilter.TryGetValue(pickup.Type, out float time);
                 bool isPocket = curPlayer.SessionVariables.TryGetValue("InPocket", out object inPocket);
                 if (foundItem && isPocket)
@@ -123,7 +122,7 @@ namespace CleanupUtility
                 Timing.KillCoroutines(this.cleanupItemsCoroutine);
             }
 
-            if(this.cleanupRagDollsCoroutine.IsRunning)
+            if (this.cleanupRagDollsCoroutine.IsRunning)
             {
                 Timing.KillCoroutines(this.cleanupRagDollsCoroutine);
             }
@@ -146,6 +145,29 @@ namespace CleanupUtility
             {
                 Timing.KillCoroutines(this.cleanupItemsCoroutine);
             }
+
+            if (this.cleanupRagDollsCoroutine.IsRunning)
+            {
+                Timing.KillCoroutines(this.cleanupRagDollsCoroutine);
+            }
+        }
+
+        /// <summary>
+        /// When a player changes role, we will ensure InPocket flag is removed.
+        /// </summary>
+        /// <param name="ev"> Event for changing role. </param>
+        internal void OnRoleChange(ChangingRoleEventArgs ev)
+        {
+            ev?.Player?.SessionVariables.Remove("InPocket");
+        }
+
+        /// <summary>
+        /// When a player dies, we will ensure InPocket flag is removed.
+        /// </summary>
+        /// <param name="ev"> Event for dying. </param>
+        internal void OnDied(DiedEventArgs ev)
+        {
+            ev?.Target?.SessionVariables.Remove("InPocket");
         }
 
         /// <summary>
@@ -179,6 +201,7 @@ namespace CleanupUtility
                 {
                     continue;
                 }
+
                 for (int i = 0; i < this.itemTracker.Count; i++)
                 {
                     KeyValuePair<Pickup, float> item = this.itemTracker.ElementAt(i);
@@ -248,6 +271,20 @@ namespace CleanupUtility
                 return;
             }
 
+            if (curRagdoll.Owner?.SessionVariables.TryGetValue("InPocket", out object inPocket) ?? false)
+            {
+                if (!this.plugin.Config.CleanInPocket)
+                {
+                    return;
+                }
+                else if ((bool)inPocket)
+                {
+                    Log.Debug($"Deleting a Radoll {curRagdoll} in pocket dimension", this.plugin.Config.Debug);
+                    curRagdoll.Delete();
+                    return;
+                }
+            }
+
             if (!this.plugin.Config.RagdollAcceptableZones.Contains(curRagdoll.Zone))
             {
                 return;
@@ -258,6 +295,5 @@ namespace CleanupUtility
             curRagdoll.Delete();
             return;
         }
-
     }
 }

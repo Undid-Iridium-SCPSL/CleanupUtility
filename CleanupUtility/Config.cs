@@ -111,7 +111,7 @@ namespace CleanupUtility
         /// Gets or sets a collection of ItemTypes that should be deleted by Zone.
         /// </summary>
         [Description("Filter on what zone item type can be cleared from.")]
-        public Dictionary<ItemType, HashSet<ZoneType>> ZoneFilter { get; set; } = new ()
+        public Dictionary<ItemType, HashSet<ZoneType>> ZoneFilter { get; set; } = new()
         {
             { ItemType.KeycardJanitor, new HashSet<ZoneType>() { ZoneType.Unspecified } },
             { ItemType.KeycardScientist, new HashSet<ZoneType>() { ZoneType.Unspecified } },
