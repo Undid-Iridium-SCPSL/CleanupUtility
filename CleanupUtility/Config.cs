@@ -27,12 +27,20 @@ namespace CleanupUtility
         /// <summary>
         /// Gets or sets a value indicating whether items should be cleaned up.
         /// </summary>
-        public bool CleanupItems { get; internal set; }
+        [Description("Gets or sets a value indicating whether items should be cleaned up.")]
+        public bool CleanupItems { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether ragdolls should be cleaned up.
         /// </summary>
-        public bool CleanupRagDolls { get; internal set; }
+        [Description("Gets or sets a value indicating whether ragdolls should be cleaned up.")]
+        public bool CleanupRagDolls { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether gets or sets value indicating whether to clean in pocket dimension.
+        /// </summary>
+        [Description("Gets or sets a value indicating whether to clean in pocket dimension.")]
+        public bool CleanInPocket { get; set; } = false;
 
         /// <summary>
         /// Gets or sets the time, in seconds, between each check of the list of items to delete.
@@ -103,7 +111,7 @@ namespace CleanupUtility
         /// Gets or sets a collection of ItemTypes that should be deleted by Zone.
         /// </summary>
         [Description("Filter on what zone item type can be cleared from.")]
-        public Dictionary<ItemType, HashSet<ZoneType>> ZoneFilter { get; set; } = new ()
+        public Dictionary<ItemType, HashSet<ZoneType>> ZoneFilter { get; set; } = new()
         {
             { ItemType.KeycardJanitor, new HashSet<ZoneType>() { ZoneType.Unspecified } },
             { ItemType.KeycardScientist, new HashSet<ZoneType>() { ZoneType.Unspecified } },
@@ -156,7 +164,7 @@ namespace CleanupUtility
         /// Gets or sets existence time limit for ragdolls.
         /// </summary>
         [Description("Time limit for ragdoll existence.")]
-        public float RagdollExistenceLimit { get; set; }
+        public float RagdollExistenceLimit { get; set; } = 10;
 
         /// <summary>
         /// Gets or sets a acceptable cleanup Zones.
