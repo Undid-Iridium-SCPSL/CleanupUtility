@@ -35,7 +35,7 @@ namespace CleanupUtility
         public override Version RequiredExiledVersion { get; } = new(5, 3, 0);
 
         /// <inheritdoc />
-        public override Version Version { get; } = new(1, 2, 3);
+        public override Version Version { get; } = new(1, 2, 4);
 
         /// <summary>
         /// Gets an instance of the <see cref="PickupChecker"/> class.
@@ -57,6 +57,7 @@ namespace CleanupUtility
             {
                 PlayerEvents.EnteringPocketDimension += this.PickupChecker.OnPocketEnter;
                 PlayerEvents.EscapingPocketDimension += this.PickupChecker.OnPocketExit;
+
                 // On Died might be overkill but OnRoleChange is much more guaranteed.
                 PlayerEvents.Died += this.PickupChecker.OnDied;
                 PlayerEvents.ChangingRole += this.PickupChecker.OnRoleChange;
