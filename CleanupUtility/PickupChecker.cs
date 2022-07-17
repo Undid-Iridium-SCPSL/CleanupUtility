@@ -57,12 +57,9 @@ namespace CleanupUtility
                         {
                             Log.Debug($"Added a {pickup.Type} ({pickup.Serial}) to the tracker to be deleted in {time} seconds from pocket dimension.", this.plugin.Config.Debug);
                             this.itemTracker.Add(pickup, Time.time + time);
-                            return;
                         }
-                        else if (!this.plugin.Config.CleanInPocket)
-                        {
-                            return;
-                        }
+
+                        return;
                     }
                 }
                 else if (foundItem && this.plugin.Config.ZoneFilter.TryGetValue(pickup.Type, out HashSet<ZoneType> acceptedZones))
@@ -279,16 +276,13 @@ namespace CleanupUtility
 
             if (curRagdoll.Owner?.SessionVariables.TryGetValue("InPocket", out object inPocket) ?? false)
             {
-                if (!this.plugin.Config.CleanInPocket)
-                {
-                    return;
-                }
-                else if ((bool)inPocket)
+                if ((bool)inPocket)
                 {
                     Log.Debug($"Deleting a Radoll {curRagdoll} in pocket dimension", this.plugin.Config.Debug);
                     curRagdoll.Delete();
-                    return;
                 }
+
+                return;
             }
 
             if (!this.plugin.Config.RagdollAcceptableZones.Contains(curRagdoll.Zone))
