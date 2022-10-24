@@ -5,19 +5,18 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Exiled.API.Enums;
+using Exiled.API.Features;
+using Exiled.API.Features.Items;
+using Exiled.Events.EventArgs;
+using MEC;
+using UnityEngine;
+
 namespace CleanupUtility
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using Exiled.API.Enums;
-    using Exiled.API.Features;
-    using Exiled.API.Features.Items;
-    using Exiled.Events.EventArgs;
-    using InventorySystem.Items.Usables.Scp330;
-    using MEC;
-    using UnityEngine;
-
     /// <summary>
     /// Handles the cleaning of items.
     /// </summary>
@@ -47,105 +46,113 @@ namespace CleanupUtility
         {
             try
             {
-                bool foundItem = this.plugin.Config.ItemFilter.TryGetValue(pickup.Type, out float time);
+                bool foundItem = plugin.Config.ItemFilter.TryGetValue(pickup.Type, out float time);
                 bool isPocket = curPlayer.SessionVariables.TryGetValue("InPocket", out object inPocket);
-                if (foundItem && isPocket)
+                if (foundItem && time >= 0)
                 {
-                    if ((bool)inPocket)
+                    if (isPocket)
                     {
-                        if (this.plugin.Config.CleanInPocket)
+                        if ((bool) inPocket)
                         {
-                            Log.Debug($"Added a {pickup.Type} ({pickup.Serial}) to the tracker to be deleted in {time} seconds from pocket dimension.", this.plugin.Config.Debug);
-                            this.itemTracker.Add(pickup, Time.time + time);
+                            if (plugin.Config.CleanInPocket)
+                            {
+                                Log.Debug(
+                                    $"Added a {pickup.Type} ({pickup.Serial}) to the tracker to be deleted in {time} seconds from pocket dimension.",
+                                    plugin.Config.Debug);
+                                itemTracker.Add(pickup, Time.time + time);
+                            }
+
+                            return;
+                        }
+                    }
+                    else if (
+                             plugin.Config.ZoneFilter.TryGetValue(pickup.Type,
+                                 out HashSet<ZoneType> acceptedZones))
+                    {
+                        if (acceptedZones.Contains(currentZone))
+                        {
+                            itemTracker.Add(pickup, Time.time + time);
+
+                            // These types of calls get expensive, going to have branch logic first, then allocation of calls.
+                            if (plugin.Config.Debug)
+                            {
+                                Log.Debug(
+                                    $"Added a {pickup.Type} ({pickup.Serial}) to the tracker to be deleted in {time} seconds.");
+                            }
+                        }
+                        else if (acceptedZones.Contains(ZoneType.Unspecified))
+                        {
+                            itemTracker.Add(pickup, Time.time + time);
+
+                            // These types of calls get expensive, going to have branch logic first, then allocation of calls.
+                            if (plugin.Config.Debug)
+                            {
+                                Log.Debug(
+                                    $"Added a {pickup.Type} ({pickup.Serial}) to the tracker to be deleted in {time} seconds with Unspecified marked as acceptable.");
+                            }
+                        }
+                        else if (plugin.Config.Debug)
+                        {
+                            // Added this if user wants to see why item was not added. Again, condition of config file much
+                            Log.Debug(
+                                $"Could not add item {pickup.Type} because zones were not equal current {currentZone} vs accepted {string.Join(Environment.NewLine, acceptedZones)}");
                         }
 
                         return;
                     }
-                }
-                else if (foundItem && this.plugin.Config.ZoneFilter.TryGetValue(pickup.Type, out HashSet<ZoneType> acceptedZones))
-                {
-                    if (acceptedZones.Contains(currentZone))
-                    {
-                        this.itemTracker.Add(pickup, Time.time + time);
 
-                        // These types of calls get expensive, going to have branch logic first, then allocation of calls.
-                        if (this.plugin.Config.Debug)
-                        {
-                            Log.Debug($"Added a {pickup.Type} ({pickup.Serial}) to the tracker to be deleted in {time} seconds.");
-                        }
-                    }
-                    else if (acceptedZones.Contains(ZoneType.Unspecified))
-                    {
-                        this.itemTracker.Add(pickup, Time.time + time);
-
-                        // These types of calls get expensive, going to have branch logic first, then allocation of calls.
-                        if (this.plugin.Config.Debug)
-                        {
-                            Log.Debug($"Added a {pickup.Type} ({pickup.Serial}) to the tracker to be deleted in {time} seconds with Unspecified marked as acceptable.");
-                        }
-                    }
-                    else if (this.plugin.Config.Debug)
-                    {
-                        // Added this if user wants to see why item was not added. Again, condition of config file much
-                        Log.Debug($"Could not add item {pickup.Type} because zones were not equal current {currentZone} vs accepted {string.Join(Environment.NewLine, acceptedZones)}");
-                    }
-
-                    return;
-                }
-
-                if (foundItem)
-                {
                     // We are going to assume that the user forgot to specify the zone. Therefore, the zone is unspecified.
-                    if (this.plugin.Config.Debug)
+                    if (plugin.Config.Debug)
                     {
-                        Log.Debug($"Added a {pickup.Type} ({pickup.Serial}) to the tracker to be deleted in {time} seconds, defaulting to unspecified zone.");
+                        Log.Debug(
+                            $"Added a {pickup.Type} ({pickup.Serial}) to the tracker to be deleted in {time} seconds, defaulting to unspecified zone.");
                     }
 
-                    this.itemTracker.Add(pickup, Time.time + time);
+                    itemTracker.Add(pickup, Time.time + time);
                 }
             }
             catch (Exception ex)
             {
-                Log.Debug($"Pickup.add failed because of {ex}", this.plugin.Config.Debug);
+                Log.Debug($"Pickup.add failed because of {ex}", plugin.Config.Debug);
             }
         }
 
         /// <inheritdoc cref="Exiled.Events.Handlers.Server.OnRoundStarted"/>
         public void OnRoundStarted()
         {
-            this.itemTracker.Clear();
-            if (this.cleanupItemsCoroutine.IsRunning)
+            itemTracker.Clear();
+            if (cleanupItemsCoroutine.IsRunning)
             {
-                Timing.KillCoroutines(this.cleanupItemsCoroutine);
+                Timing.KillCoroutines(cleanupItemsCoroutine);
             }
 
-            if (this.cleanupRagDollsCoroutine.IsRunning)
+            if (cleanupRagDollsCoroutine.IsRunning)
             {
-                Timing.KillCoroutines(this.cleanupRagDollsCoroutine);
+                Timing.KillCoroutines(cleanupRagDollsCoroutine);
             }
 
-            if (this.plugin.Config.CleanupItems)
+            if (plugin.Config.CleanupItems)
             {
-                this.cleanupItemsCoroutine = Timing.RunCoroutine(this.CheckItems());
+                cleanupItemsCoroutine = Timing.RunCoroutine(CheckItems());
             }
 
-            if (this.plugin.Config.CleanupRagDolls)
+            if (plugin.Config.CleanupRagDolls)
             {
-                this.cleanupRagDollsCoroutine = Timing.RunCoroutine(this.CheckRagDolls());
+                cleanupRagDollsCoroutine = Timing.RunCoroutine(CheckRagDolls());
             }
         }
 
         /// <inheritdoc cref="Exiled.Events.Handlers.Server.OnRestartingRound"/>
         public void OnRestartingRound()
         {
-            if (this.cleanupItemsCoroutine.IsRunning)
+            if (cleanupItemsCoroutine.IsRunning)
             {
-                Timing.KillCoroutines(this.cleanupItemsCoroutine);
+                Timing.KillCoroutines(cleanupItemsCoroutine);
             }
 
-            if (this.cleanupRagDollsCoroutine.IsRunning)
+            if (cleanupRagDollsCoroutine.IsRunning)
             {
-                Timing.KillCoroutines(this.cleanupRagDollsCoroutine);
+                Timing.KillCoroutines(cleanupRagDollsCoroutine);
             }
         }
 
@@ -155,7 +162,7 @@ namespace CleanupUtility
         /// <param name="ev"> Event for changing role. </param>
         internal void OnRoleChange(ChangingRoleEventArgs ev)
         {
-            Timing.CallDelayed(this.plugin.Config.CheckInterval + 5, () =>
+            Timing.CallDelayed(plugin.Config.CheckInterval + 5, () =>
             {
                 ev?.Player?.SessionVariables.Remove("InPocket");
             });
@@ -167,7 +174,7 @@ namespace CleanupUtility
         /// <param name="ev"> Event for dying. </param>
         internal void OnDied(DiedEventArgs ev)
         {
-            Timing.CallDelayed(this.plugin.Config.CheckInterval + 5, () =>
+            Timing.CallDelayed(plugin.Config.CheckInterval + 5, () =>
             {
                 ev?.Target?.SessionVariables.Remove("InPocket");
             });
@@ -199,16 +206,16 @@ namespace CleanupUtility
         {
             while (Round.IsStarted)
             {
-                yield return Timing.WaitForSeconds(this.plugin.Config.CheckInterval);
-                if (this.itemTracker.IsEmpty())
+                yield return Timing.WaitForSeconds(plugin.Config.CheckInterval);
+                if (itemTracker.IsEmpty())
                 {
                     continue;
                 }
 
-                for (int i = 0; i < this.itemTracker.Count; i++)
+                for (int i = 0; i < itemTracker.Count; i++)
                 {
-                    KeyValuePair<Pickup, float> item = this.itemTracker.ElementAt(i);
-                    this.CheckItem(item.Key, item.Value);
+                    KeyValuePair<Pickup, float> item = itemTracker.ElementAt(i);
+                    CheckItem(item.Key, item.Value);
                 }
             }
         }
@@ -222,7 +229,7 @@ namespace CleanupUtility
         {
             if (pickup?.Base is null)
             {
-                this.itemTracker.Remove(pickup);
+                itemTracker.Remove(pickup);
                 return;
             }
 
@@ -231,9 +238,9 @@ namespace CleanupUtility
                 return;
             }
 
-            Log.Debug($"Deleting an item of type {pickup.Type} ({pickup.Serial}).", this.plugin.Config.Debug);
+            Log.Debug($"Deleting an item of type {pickup.Type} ({pickup.Serial}).", plugin.Config.Debug);
             pickup.Destroy();
-            this.itemTracker.Remove(pickup);
+            itemTracker.Remove(pickup);
         }
 
         /// <summary>
@@ -244,7 +251,7 @@ namespace CleanupUtility
         {
             while (Round.IsStarted)
             {
-                yield return Timing.WaitForSeconds(this.plugin.Config.CheckRagDollInterval);
+                yield return Timing.WaitForSeconds(plugin.Config.CheckRagDollInterval);
                 if (Map.Ragdolls.IsEmpty())
                 {
                     continue;
@@ -252,8 +259,8 @@ namespace CleanupUtility
 
                 for (int i = 0; i < Map.Ragdolls.Count; i++)
                 {
-                    Ragdoll curRagdoll = Map.Ragdolls.ElementAt(i);
-                    this.CheckRagDoll(curRagdoll);
+                    Exiled.API.Features.Ragdoll curRagdoll = Map.Ragdolls.ElementAt(i);
+                    CheckRagDoll(curRagdoll);
                 }
             }
         }
@@ -261,15 +268,15 @@ namespace CleanupUtility
         /// <summary>
         /// Verifies the ragdoll can be cleanup, and is not null.
         /// </summary>
-        /// <param name="curRagdoll"> <see cref="Ragdoll"/> to potentially clean up. </param>
-        private void CheckRagDoll(Ragdoll curRagdoll)
+        /// <param name="curRagdoll"> <see cref="Exiled.API.Features.Ragdoll"/> to potentially clean up. </param>
+        private void CheckRagDoll(Exiled.API.Features.Ragdoll curRagdoll)
         {
             if (curRagdoll.Base is null)
             {
                 return;
             }
 
-            if (curRagdoll.Base.Info.ExistenceTime < this.plugin.Config.RagdollExistenceLimit)
+            if (curRagdoll.Base.Info.ExistenceTime < plugin.Config.RagdollExistenceLimit)
             {
                 return;
             }
@@ -278,22 +285,21 @@ namespace CleanupUtility
             {
                 if ((bool)inPocket)
                 {
-                    Log.Debug($"Deleting a Radoll {curRagdoll} in pocket dimension", this.plugin.Config.Debug);
+                    Log.Debug($"Deleting a Radoll {curRagdoll} in pocket dimension", plugin.Config.Debug);
                     curRagdoll.Delete();
                 }
 
                 return;
             }
 
-            if (!this.plugin.Config.RagdollAcceptableZones.Contains(curRagdoll.Zone))
+            if (!plugin.Config.RagdollAcceptableZones.Contains(curRagdoll.Zone))
             {
                 return;
             }
 
-            Log.Debug($"Deleting a Radoll {curRagdoll} in zone {curRagdoll.Zone}", this.plugin.Config.Debug);
+            Log.Debug($"Deleting a Radoll {curRagdoll} in zone {curRagdoll.Zone}", plugin.Config.Debug);
 
             curRagdoll.Delete();
-            return;
         }
     }
 }
