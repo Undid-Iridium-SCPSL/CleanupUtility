@@ -104,7 +104,11 @@ namespace CleanupUtility
             { ItemType.GunShotgun, 600f },
             { ItemType.SCP330, 600f },
             { ItemType.SCP2176, 600f },
+            { ItemType.SCP244a, 600f },
+            { ItemType.SCP244b, 600f },
             { ItemType.SCP1853, 600f },
+            { ItemType.ParticleDisruptor, 600f },
+            { ItemType.GunCom45, 600f },
         };
 
         /// <summary>
@@ -157,7 +161,11 @@ namespace CleanupUtility
             { ItemType.GunShotgun, new HashSet<ZoneType>() { ZoneType.Unspecified } },
             { ItemType.SCP330, new HashSet<ZoneType>() { ZoneType.Unspecified } },
             { ItemType.SCP2176, new HashSet<ZoneType>() { ZoneType.Unspecified } },
+            { ItemType.SCP244a, new HashSet<ZoneType>() { ZoneType.Unspecified } },
+            { ItemType.SCP244b, new HashSet<ZoneType>() { ZoneType.Unspecified } },
             { ItemType.SCP1853, new HashSet<ZoneType>() { ZoneType.Unspecified } },
+            { ItemType.ParticleDisruptor, new HashSet<ZoneType>() { ZoneType.Unspecified } },
+            { ItemType.GunCom45, new HashSet<ZoneType>() { ZoneType.Unspecified } },
         };
 
         /// <summary>
@@ -177,6 +185,7 @@ namespace CleanupUtility
             ZoneType.Entrance,
             ZoneType.HeavyContainment,
             ZoneType.LightContainment,
+            ZoneType.Other,
         };
     }
 }
