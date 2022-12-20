@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net48</TargetFramework>
 	<LangVersion>9</LangVersion>
     <AssemblyName>CleanupUtility</AssemblyName>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -17,8 +17,8 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="EXILED" Version="5.3.0" />
-    <PackageReference Include="Lib.Harmony" Version="2.2.1" />
+    <PackageReference Include="EXILED" Version="6.0.0-beta.8" />
+    <PackageReference Include="Lib.Harmony" Version="2.2.2" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.435">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

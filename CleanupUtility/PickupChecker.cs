@@ -5,21 +5,23 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Exiled.API.Enums;
-using Exiled.API.Features;
-using Exiled.API.Features.Items;
-using Exiled.Events.EventArgs;
-using MEC;
-using UnityEngine;
-
 namespace CleanupUtility
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
+    using System.Linq;
+    using Exiled.API.Enums;
+    using Exiled.API.Features;
+    using Exiled.API.Features.Items;
+    using Exiled.Events.EventArgs.Player;
+    using MEC;
+    using UnityEngine;
+
     /// <summary>
     /// Handles the cleaning of items.
     /// </summary>
+    [SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1101:Prefix local calls with this", Justification = "<Rider disagrees.>")]
     public class PickupChecker
     {
         private readonly Plugin plugin;
@@ -52,13 +54,12 @@ namespace CleanupUtility
                 {
                     if (isPocket)
                     {
-                        if ((bool) inPocket)
+                        if ((bool)inPocket)
                         {
                             if (plugin.Config.CleanInPocket)
                             {
                                 Log.Debug(
-                                    $"Added a {pickup.Type} ({pickup.Serial}) to the tracker to be deleted in {time} seconds from pocket dimension.",
-                                    plugin.Config.Debug);
+                                    $"Added a {pickup.Type} ({pickup.Serial}) to the tracker to be deleted in {time} seconds from pocket dimension.");
                                 itemTracker.Add(pickup, Time.time + time);
                             }
 
@@ -66,7 +67,8 @@ namespace CleanupUtility
                         }
                     }
                     else if (
-                             plugin.Config.ZoneFilter.TryGetValue(pickup.Type,
+                             plugin.Config.ZoneFilter.TryGetValue(
+                                 pickup.Type,
                                  out HashSet<ZoneType> acceptedZones))
                     {
                         if (acceptedZones.Contains(currentZone))
@@ -113,7 +115,7 @@ namespace CleanupUtility
             }
             catch (Exception ex)
             {
-                Log.Debug($"Pickup.add failed because of {ex}", plugin.Config.Debug);
+                Log.Debug($"Pickup.add failed because of {ex}");
             }
         }
 
@@ -176,7 +178,7 @@ namespace CleanupUtility
         {
             Timing.CallDelayed(plugin.Config.CheckInterval + 5, () =>
             {
-                ev?.Target?.SessionVariables.Remove("InPocket");
+                ev?.Player?.SessionVariables.Remove("InPocket");
             });
         }
 
@@ -238,7 +240,7 @@ namespace CleanupUtility
                 return;
             }
 
-            Log.Debug($"Deleting an item of type {pickup.Type} ({pickup.Serial}).", plugin.Config.Debug);
+            Log.Debug($"Deleting an item of type {pickup.Type} ({pickup.Serial}).");
             pickup.Destroy();
             itemTracker.Remove(pickup);
         }
@@ -285,7 +287,7 @@ namespace CleanupUtility
             {
                 if ((bool)inPocket)
                 {
-                    Log.Debug($"Deleting a Radoll {curRagdoll} in pocket dimension", plugin.Config.Debug);
+                    Log.Debug($"Deleting a Radoll {curRagdoll} in pocket dimension");
                     curRagdoll.Delete();
                 }
 
@@ -297,7 +299,7 @@ namespace CleanupUtility
                 return;
             }
 
-            Log.Debug($"Deleting a Radoll {curRagdoll} in zone {curRagdoll.Zone}", plugin.Config.Debug);
+            Log.Debug($"Deleting a Radoll {curRagdoll} in zone {curRagdoll.Zone}");
 
             curRagdoll.Delete();
         }
