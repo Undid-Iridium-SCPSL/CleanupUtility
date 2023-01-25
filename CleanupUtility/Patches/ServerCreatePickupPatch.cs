@@ -5,6 +5,8 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using Exiled.API.Features.Pickups;
+
 namespace CleanupUtility.Patches
 {
     using System;

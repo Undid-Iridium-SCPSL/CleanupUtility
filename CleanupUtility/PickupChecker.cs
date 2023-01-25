@@ -5,6 +5,9 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using Exiled.API.Features.Pickups;
+using Mirror;
+
 namespace CleanupUtility
 {
     using System;
@@ -254,14 +257,14 @@ namespace CleanupUtility
             while (Round.IsStarted)
             {
                 yield return Timing.WaitForSeconds(plugin.Config.CheckRagDollInterval);
-                if (Map.Ragdolls.IsEmpty())
+                if (Ragdoll.List.IsEmpty())
                 {
                     continue;
                 }
 
-                for (int i = 0; i < Map.Ragdolls.Count; i++)
+                for (int i = 0; i < Ragdoll.List.Count(); i++)
                 {
-                    Exiled.API.Features.Ragdoll curRagdoll = Map.Ragdolls.ElementAt(i);
+                    Exiled.API.Features.Ragdoll curRagdoll = Ragdoll.List.ElementAt(i);
                     CheckRagDoll(curRagdoll);
                 }
             }
@@ -288,7 +291,7 @@ namespace CleanupUtility
                 if ((bool)inPocket)
                 {
                     Log.Debug($"Deleting a Radoll {curRagdoll} in pocket dimension");
-                    curRagdoll.Delete();
+                    NetworkServer.Destroy(curRagdoll.GameObject);
                 }
 
                 return;
@@ -300,8 +303,7 @@ namespace CleanupUtility
             }
 
             Log.Debug($"Deleting a Radoll {curRagdoll} in zone {curRagdoll.Zone}");
-
-            curRagdoll.Delete();
+            NetworkServer.Destroy(curRagdoll.GameObject);
         }
     }
 }
