@@ -5,9 +5,6 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using Exiled.API.Features.Pickups;
-using Mirror;
-
 namespace CleanupUtility
 {
     using System;
@@ -17,8 +14,10 @@ namespace CleanupUtility
     using Exiled.API.Enums;
     using Exiled.API.Features;
     using Exiled.API.Features.Items;
+    using Exiled.API.Features.Pickups;
     using Exiled.Events.EventArgs.Player;
     using MEC;
+    using Mirror;
     using UnityEngine;
 
     /// <summary>
