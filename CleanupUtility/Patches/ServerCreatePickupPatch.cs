@@ -13,6 +13,7 @@ namespace CleanupUtility.Patches
     using Exiled.API.Enums;
     using Exiled.API.Features;
     using Exiled.API.Features.Items;
+    using Exiled.API.Features.Pickups;
     using HarmonyLib;
     using InventorySystem;
     using InventorySystem.Items;
