@@ -32,7 +32,13 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="if EXIST &quot;C:\Users\tuxwo\AppData\Roaming\EXILED\Plugins\&quot; (&#xD;&#xA;   copy /Y  &quot;$(TargetPath)&quot; &quot;C:\Users\tuxwo\AppData\Roaming\EXILED\Plugins\$(TargetFileName)&quot;&#xD;&#xA;  )" />
+<!--    <Exec Command="if EXIST &quot;C:\Users\tuxwo\AppData\Roaming\EXILED\Plugins\&quot; (&#xD;&#xA;   copy /Y  &quot;$(TargetPath)&quot; &quot;C:\Users\tuxwo\AppData\Roaming\EXILED\Plugins\$(TargetFileName)&quot;&#xD;&#xA;  )" />-->
+    <Exec Command="if EXIST C:\Users\tuxwo\AppData\Roaming\EXILED\Plugins\ (
+                     xcopy $(TargetDir)\$(TargetFileName) C:\Users\tuxwo\AppData\Roaming\EXILED\Plugins\ /y
+                  )" />
+    <Exec Command="if EXIST C:\Users\tuxwo\AppData\Roaming\EXILED\Plugins\ (
+                     xcopy $(TargetDir)*.pdb C:\Users\tuxwo\AppData\Roaming\EXILED\Plugins\ /y
+                  )" />
   </Target>
 
 </Project>
