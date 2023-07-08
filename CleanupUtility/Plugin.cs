@@ -32,10 +32,10 @@ namespace CleanupUtility
         public override string Name => "CleanupUtility";
 
         /// <inheritdoc />
-        public override Version RequiredExiledVersion { get; } = new(6, 0, 0);
+        public override Version RequiredExiledVersion { get; } = new(7, 0, 0);
 
         /// <inheritdoc />
-        public override Version Version { get; } = new(2, 0, 2);
+        public override Version Version { get; } = new(2, 0, 3);
 
         /// <summary>
         /// Gets an instance of the <see cref="PickupChecker"/> class.
