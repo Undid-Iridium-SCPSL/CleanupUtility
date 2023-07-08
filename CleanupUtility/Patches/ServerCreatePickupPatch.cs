@@ -5,26 +5,28 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Reflection.Emit;
+using Exiled.API.Enums;
+using Exiled.API.Features;
+using Exiled.API.Features.Pickups;
+using HarmonyLib;
+using InventorySystem;
+using InventorySystem.Items;
+using InventorySystem.Items.Pickups;
+using NorthwoodLib.Pools;
+using UnityEngine;
+
 namespace CleanupUtility.Patches
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Reflection.Emit;
-    using Exiled.API.Enums;
-    using Exiled.API.Features;
-    using Exiled.API.Features.Items;
-    using Exiled.API.Features.Pickups;
-    using HarmonyLib;
-    using InventorySystem;
-    using InventorySystem.Items;
-    using InventorySystem.Items.Pickups;
-    using NorthwoodLib.Pools;
-    using static HarmonyLib.AccessTools;
+    using static AccessTools;
 
     /// <summary>
     /// Patches <see cref="InventoryExtensions.ServerCreatePickup"/> to add <see cref="Pickup"/>s to the <see cref="PickupChecker"/>.
     /// </summary>
-    [HarmonyPatch(typeof(InventoryExtensions), nameof(InventoryExtensions.ServerCreatePickup))]
+    [HarmonyPatch(typeof(InventoryExtensions), nameof(InventoryExtensions.ServerCreatePickup),
+        typeof(ItemBase), typeof(PickupSyncInfo), typeof(Vector3), typeof(Quaternion), typeof(bool), typeof(Action<ItemPickupBase>))]
     internal static class ServerCreatePickupPatch
     {
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
@@ -35,7 +37,7 @@ namespace CleanupUtility.Patches
 
             LocalBuilder curPlayer = generator.DeclareLocal(typeof(Player));
 
-            int index = newInstructions.FindIndex(instruction => instruction.opcode == OpCodes.Ldarg_1);
+            int index = newInstructions.FindIndex(instruction => instruction.opcode == OpCodes.Ldarg_0);
 
             Label skipLabel = generator.DefineLabel();
             Label continueProcessing = generator.DefineLabel();
@@ -62,11 +64,15 @@ namespace CleanupUtility.Patches
 
                 // Then save the player zone to a local variable (This is all done early because spawn deletes information and made it default to surface)
                 new(OpCodes.Stloc, itemZone.LocalIndex),
+                
+                //Load the current Inventory (Itembase -> (get) Inventory
+                new(OpCodes.Callvirt, PropertyGetter(typeof(ItemBase), nameof(ItemBase.OwnerInventory))),
 
-                // Load EStack to callvirt and get owner back on Estack
+                // Callvirt of ItemBase -> (now) Inventory to get gameobject
                 new(OpCodes.Callvirt, PropertyGetter(typeof(Inventory), nameof(Inventory.gameObject))),
 
-                new(OpCodes.Call, Method(typeof(ReferenceHub), nameof(ReferenceHub.GetHub), new[] { typeof(UnityEngine.GameObject) })),
+                //Get current reference hub
+                new(OpCodes.Call, Method(typeof(ReferenceHub), nameof(ReferenceHub.GetHub), new[] { typeof(GameObject) })),
 
                 // Duplicate ItemBase.Owner (if null then two nulls)
                 new(OpCodes.Dup),
@@ -113,10 +119,10 @@ namespace CleanupUtility.Patches
             {
                 // Calls static instance
                 new CodeInstruction(OpCodes.Call, PropertyGetter(typeof(Plugin), nameof(Plugin.Instance))),
-
+            
                 // Since the instance is now on the stack, we will call ProperttyGetter to get to PickupChecker object from our Instance object
                 new CodeInstruction(OpCodes.Callvirt, PropertyGetter(typeof(Plugin), nameof(Plugin.PickupChecker))),
-
+            
                 /*
                  *      .maxstack 4
                         .locals init (
@@ -124,19 +130,19 @@ namespace CleanupUtility.Patches
                             [1] valuetype InventorySystem.Items.Pickups.PickupSyncInfo
                         )
                 */
-
+            
                 // Load the variable unto Eval Stack [ItemPickupBase]
                 new CodeInstruction(OpCodes.Ldloc_0),
-
+            
                 // Calls pickup method using local variable 0 (Which is on Eval Stack [ItemPickupBase]) and it gets back a Pickup object onto the EStack [Pickup]
                 new CodeInstruction(OpCodes.Call, Method(typeof(Pickup), nameof(Pickup.Get), new[] { typeof(ItemPickupBase) })),
-
+            
                 // Calls arguemnt 1 from function call unto EStack (Zone)
                 new CodeInstruction(OpCodes.Ldloc, itemZone.LocalIndex),
-
+            
                 // Calls arguemnt 1 from function call unto EStack (Zone)
                 new CodeInstruction(OpCodes.Ldloc, curPlayer.LocalIndex),
-
+            
                 // EStack variable used, [PickupChecker (Callvirt arg 0 (Instance)), Pickup (Arg 1 (Param))]
                 new CodeInstruction(OpCodes.Callvirt, Method(typeof(PickupChecker), nameof(PickupChecker.Add), new[] { typeof(Pickup), typeof(ZoneType), typeof(Player) })),
             });
