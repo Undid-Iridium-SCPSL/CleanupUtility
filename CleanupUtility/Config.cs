@@ -60,15 +60,16 @@ namespace CleanupUtility
         [Description("A collection of items that should be deleted paired with the time, in seconds, to wait before deleting them.")]
         public Dictionary<ItemType, float> ItemFilter { get; set; } = new()
         {
+            { ItemType.None, 600f },
             { ItemType.KeycardJanitor, 600f },
             { ItemType.KeycardScientist, 600f },
             { ItemType.KeycardResearchCoordinator, 600f },
             { ItemType.KeycardZoneManager, 600f },
             { ItemType.KeycardGuard, 600f },
-            { ItemType.KeycardNTFOfficer, 600f },
+            { ItemType.KeycardMTFPrivate, 600f },
             { ItemType.KeycardContainmentEngineer, 600f },
-            { ItemType.KeycardNTFLieutenant, 600f },
-            { ItemType.KeycardNTFCommander, 600f },
+            { ItemType.KeycardMTFOperative, 600f },
+            { ItemType.KeycardMTFCaptain, 600f },
             { ItemType.KeycardFacilityManager, 600f },
             { ItemType.KeycardChaosInsurgency, 600f },
             { ItemType.KeycardO5, 600f },
@@ -109,6 +110,12 @@ namespace CleanupUtility
             { ItemType.SCP1853, 600f },
             { ItemType.ParticleDisruptor, 600f },
             { ItemType.GunCom45, 600f },
+            { ItemType.SCP1576, 600f },
+            { ItemType.Jailbird, 600f },
+            { ItemType.AntiSCP207, 600f },
+            { ItemType.GunFRMG0, 600f },
+            { ItemType.GunA7, 600f },
+            { ItemType.Lantern, 600f }
         };
 
         /// <summary>
@@ -117,15 +124,16 @@ namespace CleanupUtility
         [Description("Filter on what zone item type can be cleared from.")]
         public Dictionary<ItemType, HashSet<ZoneType>> ZoneFilter { get; set; } = new()
         {
+            { ItemType.None, new HashSet<ZoneType>() { ZoneType.Unspecified } },
             { ItemType.KeycardJanitor, new HashSet<ZoneType>() { ZoneType.Unspecified } },
             { ItemType.KeycardScientist, new HashSet<ZoneType>() { ZoneType.Unspecified } },
             { ItemType.KeycardResearchCoordinator, new HashSet<ZoneType>() { ZoneType.Unspecified } },
             { ItemType.KeycardZoneManager, new HashSet<ZoneType>() { ZoneType.Unspecified } },
             { ItemType.KeycardGuard, new HashSet<ZoneType>() { ZoneType.Unspecified } },
-            { ItemType.KeycardNTFOfficer, new HashSet<ZoneType>() { ZoneType.Unspecified } },
+            { ItemType.KeycardMTFPrivate, new HashSet<ZoneType>() { ZoneType.Unspecified } },
             { ItemType.KeycardContainmentEngineer, new HashSet<ZoneType>() { ZoneType.Unspecified } },
-            { ItemType.KeycardNTFLieutenant, new HashSet<ZoneType>() { ZoneType.Unspecified } },
-            { ItemType.KeycardNTFCommander, new HashSet<ZoneType>() { ZoneType.Unspecified } },
+            { ItemType.KeycardMTFOperative, new HashSet<ZoneType>() { ZoneType.Unspecified } },
+            { ItemType.KeycardMTFCaptain, new HashSet<ZoneType>() { ZoneType.Unspecified } },
             { ItemType.KeycardFacilityManager, new HashSet<ZoneType>() { ZoneType.Unspecified } },
             { ItemType.KeycardChaosInsurgency, new HashSet<ZoneType>() { ZoneType.Unspecified } },
             { ItemType.KeycardO5, new HashSet<ZoneType>() { ZoneType.Unspecified } },
@@ -166,6 +174,12 @@ namespace CleanupUtility
             { ItemType.SCP1853, new HashSet<ZoneType>() { ZoneType.Unspecified } },
             { ItemType.ParticleDisruptor, new HashSet<ZoneType>() { ZoneType.Unspecified } },
             { ItemType.GunCom45, new HashSet<ZoneType>() { ZoneType.Unspecified } },
+            { ItemType.SCP1576, new HashSet<ZoneType>() { ZoneType.Unspecified } },
+            { ItemType.Jailbird, new HashSet<ZoneType>() { ZoneType.Unspecified } },
+            { ItemType.AntiSCP207, new HashSet<ZoneType>() { ZoneType.Unspecified } },
+            { ItemType.GunFRMG0, new HashSet<ZoneType>() { ZoneType.Unspecified } },
+            { ItemType.GunA7, new HashSet<ZoneType>() { ZoneType.Unspecified } },
+            { ItemType.Lantern, new HashSet<ZoneType>() { ZoneType.Unspecified } }
         };
 
         /// <summary>

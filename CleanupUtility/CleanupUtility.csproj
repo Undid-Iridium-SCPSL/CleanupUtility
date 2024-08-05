@@ -17,7 +17,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="EXILED" Version="7.2.0" />
+    <PackageReference Include="EXILEDOFFICIAL" Version="8.11.0" />
     <PackageReference Include="Lib.Harmony" Version="2.2.2" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.435">
       <PrivateAssets>all</PrivateAssets>
@@ -31,10 +31,12 @@
     <Reference Include="UnityEngine.CoreModule" HintPath="$(EXILED_References)\UnityEngine.CoreModule.dll" Private="false" />
   </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-<!--    <Exec Command="if EXIST &quot;C:\Users\tuxwo\AppData\Roaming\EXILED\Plugins\&quot; (&#xD;&#xA;   copy /Y  &quot;$(TargetPath)&quot; &quot;C:\Users\tuxwo\AppData\Roaming\EXILED\Plugins\$(TargetFileName)&quot;&#xD;&#xA;  )" />-->
-    <Exec Command="if EXIST C:\Users\tuxwo\AppData\Roaming\EXILED\Plugins\ (&#xA;                     xcopy $(TargetDir)\$(TargetFileName) C:\Users\tuxwo\AppData\Roaming\EXILED\Plugins\ /y&#xA;                  )" />
-    <Exec Command="if EXIST C:\Users\tuxwo\AppData\Roaming\EXILED\Plugins\ (&#xA;                     xcopy $(TargetDir)*.pdb C:\Users\tuxwo\AppData\Roaming\EXILED\Plugins\ /y&#xA;                  )" />
-  </Target>
+  <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
+    <PostBuildEvent>if not "$(EXILED_DEV_PLUGINAPI_REFERENCE)"=="" copy /y "$(OutputPath)$(AssemblyName).dll" "$(EXILED_DEV_PLUGINAPI_REFERENCE)\dependencies\" &amp;&amp; if not "$(EXILED_DEV_REFERENCES)"=="" copy /y "$(OutputPath)$(AssemblyName).dll" "$(EXILED_DEV_REFERENCES)\Plugins\dependencies\"</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(OS)' == 'Unix' ">
+    <PostBuildEvent>if [[ ! -z "$EXILED_DEV_REFERENCES" ]]; then cp "$(OutputPath)$(AssemblyName).dll" "$EXILED_DEV_REFERENCES/Plugins/dependencies/"; fi</PostBuildEvent>
+    <PostBuildEvent>if [[ ! -z "$EXILED_DEV_PLUGINAPI_REFERENCE" ]]; then cp "$(OutputPath)$(AssemblyName).dll" "$EXILED_DEV_PLUGINAPI_REFERENCE/dependencies/"; fi</PostBuildEvent>
+  </PropertyGroup>
 
 </Project>
