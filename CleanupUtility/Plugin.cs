@@ -32,7 +32,7 @@ namespace CleanupUtility
         public override string Name => "CleanupUtility";
 
         /// <inheritdoc />
-        public override Version RequiredExiledVersion { get; } = new(9, 0, 0);
+        public override Version RequiredExiledVersion { get; } = new(8, 0, 0);
 
         /// <inheritdoc />
         public override Version Version { get; } = new(2, 0, 5);
