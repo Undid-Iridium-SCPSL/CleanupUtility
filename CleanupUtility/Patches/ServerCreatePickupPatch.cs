@@ -7,6 +7,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Reflection.Emit;
 using Exiled.API.Enums;
 using Exiled.API.Features;
@@ -16,6 +18,7 @@ using InventorySystem;
 using InventorySystem.Items;
 using InventorySystem.Items.Pickups;
 using NorthwoodLib.Pools;
+using PluginAPI.Events;
 using UnityEngine;
 
 namespace CleanupUtility.Patches
@@ -25,10 +28,45 @@ namespace CleanupUtility.Patches
     /// <summary>
     /// Patches <see cref="InventoryExtensions.ServerCreatePickup"/> to add <see cref="Pickup"/>s to the <see cref="PickupChecker"/>.
     /// </summary>
-    [HarmonyPatch(typeof(InventoryExtensions), nameof(InventoryExtensions.ServerCreatePickup),
-        typeof(ItemBase), typeof(PickupSyncInfo), typeof(Vector3), typeof(Quaternion), typeof(bool), typeof(Action<ItemPickupBase>))]
-    internal static class ServerCreatePickupPatch
+     [HarmonyPatch(typeof(InventoryExtensions), nameof(InventoryExtensions.ServerCreatePickup), typeof(ItemBase), typeof(PickupSyncInfo), typeof(Vector3), typeof(Quaternion), typeof(bool), typeof(Action<ItemPickupBase>))]
+    //[HarmonyPatch]
+    internal static class ServerCreatePickupPatchUndid
     {
+        
+        // private static MethodInfo TargetMethod()
+        // {
+        //     // Get the type of the InventoryExtensions class
+        //     Type type = typeof(InventoryExtensions);
+        //
+        //     // Get all methods named "ServerCreatePickup"
+        //     MethodInfo[] methods = type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+        //
+        //     // Iterate through all methods and filter by name
+        //     foreach (MethodInfo method in methods)
+        //     {
+        //         if (method.Name == "ServerCreatePickup" && method.GetParameters().Length == 6)
+        //         {
+        //             ParameterInfo[] parameters = method.GetParameters();
+        //             string parameterString = string.Join(", ", Array.ConvertAll(parameters, 
+        //                 p => $"{p.ParameterType.Name} {p.Name}")); // Format: Type Name
+        //             // Output the method signature
+        //             Log.Info($"What the hell are the parameters of this {parameterString}");
+        //             return method;
+        //         }
+        //     }
+        //
+        //     return null;
+        //
+        //     // return Method(typeof(InventoryExtensions), "ServerCreatePickup", new Type[]
+        //     // {
+        //     //     typeof(ItemBase), 
+        //     //     typeof(PickupSyncInfo), 
+        //     //     typeof(Vector3), 
+        //     //     typeof(Quaternion), 
+        //     //     typeof(bool), 
+        //     //     typeof(Action<ItemPickupBase>)
+        //     // });
+        // }
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
         {
             List<CodeInstruction> newInstructions = ListPool<CodeInstruction>.Shared.Rent(instructions);
@@ -42,7 +80,14 @@ namespace CleanupUtility.Patches
             Label skipLabel = generator.DefineLabel();
             Label continueProcessing = generator.DefineLabel();
             Label skipException = generator.DefineLabel();
-
+            
+            // Type type = typeof(Pickup);
+            // MethodInfo[] methods = type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+            // MethodInfo currentZoneAdd = Method(typeof(Pickup), nameof(Pickup.Get), new[] { typeof(ItemPickupBase) }
+            MethodInfo currentZoneAdd =  typeof(Pickup)
+                .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static)
+                .FirstOrDefault(m => m.Name == nameof(Pickup.Get) && m.GetParameters()[0].ParameterType == typeof(ItemPickupBase)
+                                     && !m.IsGenericMethod);
             LocalBuilder exceptionObject = generator.DeclareLocal(typeof(Exception));
 
             // Our Catch (Try wrapper) block
@@ -135,7 +180,8 @@ namespace CleanupUtility.Patches
                 new CodeInstruction(OpCodes.Ldloc_0),
             
                 // Calls pickup method using local variable 0 (Which is on Eval Stack [ItemPickupBase]) and it gets back a Pickup object onto the EStack [Pickup]
-                new CodeInstruction(OpCodes.Call, Method(typeof(Pickup), nameof(Pickup.Get), new[] { typeof(ItemPickupBase) })),
+                // new CodeInstruction(OpCodes.Call, Method(typeof(Pickup), nameof(Pickup.Get), new[] { typeof(ItemPickupBase) })),
+                new CodeInstruction(OpCodes.Call, currentZoneAdd),
             
                 // Calls arguemnt 1 from function call unto EStack (Zone)
                 new CodeInstruction(OpCodes.Ldloc, itemZone.LocalIndex),
