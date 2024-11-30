@@ -175,20 +175,20 @@ namespace CleanupUtility.Patches
                             [1] valuetype InventorySystem.Items.Pickups.PickupSyncInfo
                         )
                 */
-            
+
                 // Load the variable unto Eval Stack [ItemPickupBase]
                 new CodeInstruction(OpCodes.Ldloc_0),
-            
+
                 // Calls pickup method using local variable 0 (Which is on Eval Stack [ItemPickupBase]) and it gets back a Pickup object onto the EStack [Pickup]
                 // new CodeInstruction(OpCodes.Call, Method(typeof(Pickup), nameof(Pickup.Get), new[] { typeof(ItemPickupBase) })),
                 new CodeInstruction(OpCodes.Call, currentZoneAdd),
-            
+
                 // Calls arguemnt 1 from function call unto EStack (Zone)
                 new CodeInstruction(OpCodes.Ldloc, itemZone.LocalIndex),
-            
+
                 // Calls arguemnt 1 from function call unto EStack (Zone)
                 new CodeInstruction(OpCodes.Ldloc, curPlayer.LocalIndex),
-            
+
                 // EStack variable used, [PickupChecker (Callvirt arg 0 (Instance)), Pickup (Arg 1 (Param))]
                 new CodeInstruction(OpCodes.Callvirt, Method(typeof(PickupChecker), nameof(PickupChecker.Add), new[] { typeof(Pickup), typeof(ZoneType), typeof(Player) })),
             });
